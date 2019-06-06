@@ -1,0 +1,46 @@
+[user]
+	name = Anders Knudsen
+	email = abknudsen@firstpasseng.com
+[core]
+        editor = vim
+        excludesfile = ~/.gitignore_global
+        pager = less -x4
+[push]
+	default = simple
+        # this push default makes "git push" => "git push origin <currently active branch>"
+        # See: http://www.fleekitsolutions.com/git/difference-between-push-default-matching-simple
+[color]
+        branch = auto
+        diff = auto
+        status = auto
+        interactive = auto
+	ui = true
+[color "branch"]
+        current = red reverse
+        local = blue
+        remote = green
+[color "diff"]
+        meta = yellow
+        frag = magenta
+        old = red bold
+        new = green
+        plain = white
+[color "status"]
+        added = yellow
+        changed = cyan
+        untracked = magenta
+        deleted = red
+	header = white normal dim
+[alias]
+        stat = status
+        # nicely formatted git logs (git lg; git ls; git ll):
+        lg = log --graph --abbrev-commit --oneline --decorate=full --date=relative \
+        --format=format:'%C(bold blue)%h%C(reset)          \
+        - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) \
+        %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+        ls = log --pretty=format:"%C(green)%h\\ %C(yellow)[%ad]%Cred%d\\ %Creset%s%Cblue\\ [%an]" --decorate --date=relative
+        ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [a:%an,c:%cn]" --decorate --numstat
+        # Ammend previous commit --
+        # Take all your modified files, uncommit the changes, and add them
+        # to the previous commit, keeping the same commit message:
+        caa = commit -a --amend -C HEAD
