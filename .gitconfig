@@ -33,6 +33,10 @@
 	header = white normal dim
 [alias]
         stat = status
+        #
+        # show diffs between staged and repo:
+        diffs = diff --staged
+        #
         # nicely formatted git logs (git lg; git ls; git ll):
         lg = log --graph --abbrev-commit --oneline --decorate=full --date=relative \
         --format=format:'%C(bold blue)%h%C(reset)          \
@@ -40,6 +44,7 @@
         %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
         ls = log --pretty=format:"%C(green)%h\\ %C(yellow)[%ad]%Cred%d\\ %Creset%s%Cblue\\ [%an]" --decorate --date=relative
         ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [a:%an,c:%cn]" --decorate --numstat
+        #
         # Ammend previous commit --
         # Take all your modified files, uncommit the changes, and add them
         # to the previous commit, keeping the same commit message:
