@@ -196,6 +196,7 @@ if [ $(uname) == "Darwin" ]; then
   # }}}
 
   #open macvim
+  # install macvim from homebrew if not already
   function gvim {
     if [ -e $1 ];
       then open -a MacVim $@;
