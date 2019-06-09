@@ -28,3 +28,5 @@ alias ps='ps xlUbwhitlock'
 #
 alias svnstat='svn stat | grep -E "^(M|A)"'
 alias svnstat="svn stat ${PROJWS} | grep -E \"^(M|A)\""
+#
+alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
