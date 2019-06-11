@@ -32,6 +32,8 @@
         deleted = red
 	header = white normal dim
 [alias]
+        # NOTE: grow your aliases organically so you know what they're doing...
+        #
         stat = status
         #
         # show diffs between staged and repo:
