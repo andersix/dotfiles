@@ -24,7 +24,6 @@ alias dpaste="curl -F 'content=<-' https://dpaste.de/api/"
 #alias ls='ls -lahG --color | sort'
 #alias vncstart='vncserver :12 -geometry 3320x965 -depth 16  -AlwaysShared'
 #alias vncstop='vncserver -kill :12'
-alias ps='ps xlUbwhitlock'
 #
 alias svnstat='svn stat | grep -E "^(M|A)"'
 alias svnstat="svn stat ${PROJWS} | grep -E \"^(M|A)\""
