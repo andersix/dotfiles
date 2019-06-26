@@ -245,6 +245,7 @@ set scrolloff=3             " lines of text around cursor
 set shell=$SHELL
 set cmdheight=1             " command bar height
 set title                   " set terminal title
+set titleold=
 
 " syntastic settings
 " set statusline+=%#warningmsg#
