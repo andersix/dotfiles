@@ -268,6 +268,14 @@ shopt -s histappend
 PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
 # }}}
 
+
+# Get Environment Modules {{{
+if [ -f /usr/share/Modules/init/bash ]; then
+    . /usr/share/Modules/init/bash
+fi
+# }}}
+
+
 # Set my home bin in PATH, I like it first {{{
 export PATH=$HOME/bin:$PATH
 # }}}
