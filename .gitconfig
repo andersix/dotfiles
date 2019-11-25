@@ -9,6 +9,10 @@
 	default = simple
         # this push default makes "git push" => "git push origin <currently active branch>"
         # See: http://www.fleekitsolutions.com/git/difference-between-push-default-matching-simple
+[diff]
+	tool = gvimdiff
+[difftool]
+	prompt = false
 [color]
         branch = auto
         diff = auto

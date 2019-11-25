@@ -10,8 +10,8 @@ alias mv='mv -i'
 alias cp='cp -i'
 alias ln='ln -i'
 alias genpass="openssl rand -base64 20"
-alias ls="ls -Gp"
-alias ll='ls -laGp --color=always'
+alias ls="ls -p"
+alias ll='ls -lap --color=always'
 alias nowdate='date +"%Y-%m-%d"'
 alias ping="ping -c 5 "
 alias ports='netstat -tulanp'

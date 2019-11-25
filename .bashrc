@@ -5,6 +5,7 @@ export SHELL_SESSION_HISTORY=0
 export HISTFILESIZE=999999
 export HISTSIZE=999999
 export HISTCONTROL=ignoredups:ignorespace
+export PAGER=less
 shopt -s checkwinsize
 shopt -s progcomp
 
@@ -241,6 +242,31 @@ fi
 # Specific systems configs {{{
 # }}}
 
+# SSH configs {{{
+#SSH_ENV="$HOME/.ssh/environment"
+#
+#function start_agent {
+#    echo "Initialising new SSH agent..."
+#    /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+#    echo succeeded
+#    chmod 600 "${SSH_ENV}"
+#    . "${SSH_ENV}" > /dev/null
+##    /usr/bin/ssh-add;
+#}
+#
+## Source SSH settings, if applicable
+#
+#if [ -f "${SSH_ENV}" ]; then
+#    . "${SSH_ENV}" > /dev/null
+#    #ps ${SSH_AGENT_PID} doesn't work under cywgin
+#    ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+#        start_agent;
+#    }
+#else
+#    start_agent;
+#fi
+# }}}
+
 # {{{
 # I've setup pip3 to require a python virtualenv, so running pip3 outside a virtualenv will fail.
 # To update or install global python packages, use the shell command gpip, i.e.,
@@ -262,6 +288,9 @@ LP_USER_ALWAYS=1
 LP_HOSTNAME_ALWAYS=0
 LP_ENABLE_RUNTIME=0
 LP_ENABLE_TIME=0
+LP_ENABLE_PERM=0
+LP_DISABLED_VCS_PATH=0
+LP_ENABLE_TITLE=1
 source $HOME/.liquidprompt
 #make sure the history is updated at every command
 shopt -s histappend

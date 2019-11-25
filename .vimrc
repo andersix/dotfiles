@@ -145,7 +145,7 @@ set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.i
 vnoremap p <Esc>:let current_reg = @"<CR>gvdi<C-R>=current_reg<CR><Esc>
 
 " caseinsensitive incremental search
-set ignorecase
+"set ignorecase
 set hlsearch
 set incsearch
 
