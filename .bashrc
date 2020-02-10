@@ -143,7 +143,7 @@ if [ $(uname) == "Linux" ]; then
   # enable color support of ls and also add handy aliases
   if [ -x /usr/bin/dircolors ]; then
       test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-      alias ls='ls -hGp --color=always'
+      alias ls='ls -hp --color=always'
       alias grep='grep --color=auto'
       alias fgrep='fgrep --color=auto'
       alias egrep='egrep --color=auto'
@@ -158,8 +158,7 @@ if [ $(uname) == "Linux" ]; then
   alias pacman='sudo pacman'
   alias pac='sudo pacman'
 
-  alias ls='ls --color'
-  alias ls='ls -hGp --color'
+  alias ls='ls -hp --color'
   alias ll='ls -l --color'
   alias la='ls -al --color'
   alias less='less -R'
@@ -183,9 +182,8 @@ if [ $(uname) == "Darwin" ]; then
   export MANPATH=/opt/local/share/man:$MANPATH
 
   #aliases {{{
-  alias ls='ls -G'
-  alias ll='ls -ltrG'
-  alias la='ls -alG'
+  alias ll='ls -ltr'
+  alias la='ls -al'
   alias less='less -R'
   alias fnd='open -a Finder'
   alias gitx='open -a GitX'
