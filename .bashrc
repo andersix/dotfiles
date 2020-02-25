@@ -2,8 +2,8 @@
 
 #Global options {{{
 export SHELL_SESSION_HISTORY=0
-export HISTFILESIZE=999999
-export HISTSIZE=999999
+export HISTFILESIZE=
+export HISTSIZE=""
 export HISTCONTROL=ignoredups:ignorespace
 export PAGER=less
 shopt -s checkwinsize
@@ -172,16 +172,19 @@ fi
 # }}}
 
 # Synopsys Verdi {{{
-export NOVAS_AUTO_SOURCE='~/verdi_custom.tcl'
+if [ -f ~/verdi_custom.tcl ]; then
+	export NOVAS_AUTO_SOURCE='~/verdi_custom.tcl'
+fi
 # }}}
 
 # OSX specific config {{{
 if [ $(uname) == "Darwin" ]; then
   export TERM=xterm-256color
-  export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/Cellar/python3/3.4.1/bin:$HOME/bin:$PATH
-  export MANPATH=/opt/local/share/man:$MANPATH
+  #export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/Cellar/python3/3.4.1/bin:$HOME/bin:$PATH
+  #export MANPATH=/opt/local/share/man:$MANPATH
 
   #aliases {{{
+  alias ls='ls -G'
   alias ll='ls -ltr'
   alias la='ls -al'
   alias less='less -R'
@@ -219,7 +222,7 @@ if [ $(uname) == "Darwin" ]; then
   #Pipe2Eval folder for vim extension
   export PIP2EVAL_TMP_FILE_PATH=/tmp/shms
 
-  export WORKON_HOME="/Users/anders/dev/envs"
+#  export WORKON_HOME="~/dev/envs"
 #  export VIRTUALENV_USE_DISTRIBUTE=1
 #  [[ -n "/usr/local/bin/virtualenvwrapper.sh" ]] && source virtualenvwrapper.sh
 fi
@@ -289,10 +292,10 @@ LP_ENABLE_TIME=0
 LP_ENABLE_PERM=0
 LP_DISABLED_VCS_PATH=0
 LP_ENABLE_TITLE=1
-source $HOME/.liquidprompt
+[[ $- = *i* ]] && source ~/.liquidprompt
 #make sure the history is updated at every command
 shopt -s histappend
-PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
+#PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
 # }}}
 
 

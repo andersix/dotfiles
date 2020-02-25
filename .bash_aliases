@@ -8,10 +8,8 @@ alias rm='rm -i'
 # confirmation #
 alias mv='mv -i'
 alias cp='cp -i'
-alias ln='ln -i'
 alias genpass="openssl rand -base64 20"
-alias ls="ls -p"
-alias ll='ls -lap --color=always'
+
 alias nowdate='date +"%Y-%m-%d"'
 alias ping="ping -c 5 "
 alias ports='netstat -tulanp'
@@ -21,7 +19,6 @@ alias untar="tar xvf "
 alias vi='vim'
 alias vimo='vim -O '
 alias dpaste="curl -F 'content=<-' https://dpaste.de/api/"
-#alias ls='ls -lahG --color | sort'
 #alias vncstart='vncserver :12 -geometry 3320x965 -depth 16  -AlwaysShared'
 #alias vncstop='vncserver -kill :12'
 #
