@@ -178,6 +178,8 @@ if has("autocmd")
  autocmd BufRead,BufNewFile *.v,*.vh set expandtab tabstop=4 softtabstop=2 shiftwidth=2
  autocmd BufRead,BufNewFile *.sv,*.svi,*.svh set filetype=verilog_systemverilog
  autocmd BufRead,BufNewFile *.sv,*.svi,*.svh set expandtab tabstop=4 softtabstop=2 shiftwidth=2
+ " use Verilog mode for editing Liberty .lib files
+ autocmd BufRead,BufNewFile *.lib set filetype=verilog_systemverilog
 endif " has ("autocmd")
 
 " function to cleanup a text -> mapped to F5
