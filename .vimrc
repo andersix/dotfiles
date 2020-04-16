@@ -180,6 +180,14 @@ if has("autocmd")
  autocmd BufRead,BufNewFile *.sv,*.svi,*.svh set expandtab tabstop=4 softtabstop=2 shiftwidth=2
  " use Verilog mode for editing Liberty .lib files
  autocmd BufRead,BufNewFile *.lib set filetype=verilog_systemverilog
+ autocmd BufRead,BufNewFile *.do                set filetype=tcl
+ autocmd BufRead,BufNewFile *.spf,*.stil,*.ctl  set filetype=verilog  " DFT stuff in STIL syntax
+ "autocmd BufRead,BufNewFile *.lib,*.lib_ccs_tn  set filetype=verilog  " Synopsys Liberty
+ autocmd BufRead,BufNewFile *.lef,*.LEF         so ~/.vim/syntax/lef.vim
+ autocmd BufRead,BufNewFile *.def               so ~/.vim/syntax/def.vim
+ autocmd BufRead,BufNewFile *.lef,*.LEF         set filetype=lef
+ autocmd BufRead,BufNewFile *.def               set filetype=def
+ autocmd BufRead,BufNewFile *.cdl               set filetype=spice
 endif " has ("autocmd")
 
 " function to cleanup a text -> mapped to F5
