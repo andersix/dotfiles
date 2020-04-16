@@ -302,6 +302,10 @@ shopt -s histappend
 # Get Environment Modules {{{
 if [ -f /usr/share/Modules/init/bash ]; then
     . /usr/share/Modules/init/bash
+elif [ -f /etc/modules/init/bash ]; then
+    . /etc/modules/init/bash
+else
+    echo "Environment modules not found"
 fi
 # }}}
 
