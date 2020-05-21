@@ -14,7 +14,9 @@ if empty(glob('~/.vim-plugged'))
 endif
 " Note, a Plug with no URL assumes 'https://github.com/', and no '.git' at the end
 call plug#begin('~/.vim-plugged')
+Plug 'tpope/vim-fugitive'
 Plug 'vhda/verilog_systemverilog.vim'
+"Plug 'nachumk/systemverilog.vim'
 Plug 'hdima/python-syntax'
 Plug 'zhuzhzh/verilog_emacsauto.vim', {'for': ['verilog', 'systemverilog'] }
 Plug 'vimtaku/hl_matchit.vim'
@@ -24,8 +26,7 @@ Plug 'ludovicchabant/vim-lawrencium'
 Plug 'nvie/vim-flake8'
 Plug 'git://repo.or.cz/vcscommand'
 Plug 'itchyny/lightline.vim'
-Plug 'scrooloose/nerdtree'
-Plug 'jistr/vim-nerdtree-tabs'
+Plug 'preservim/nerdtree'
 Plug 'tmhedberg/SimpylFold'
 Plug 'Konfekt/FastFold'
 Plug 'nanotech/jellybeans.vim'
@@ -306,5 +307,13 @@ au BufNewFile,BufRead *.py:
     \ set autoindent
     \ set fileformat=unix
 
-" open a NERDTree automatically when vim starts up
-"autocmd vimenter * NERDTree
+if has("gui_running")
+  if has("gui_gtk2") || has("gui_gtk3")
+    set guifont=Fira\ Mono\ 12
+  elseif has("gui_macvim")
+    set guifont=Menlo\ Regular:h14
+  elseif has("gui_win32")
+    set guifont=Consolas:h11:cANSI
+  endif
+endif
+
