@@ -1,0 +1,25 @@
+[/]
+list=['a134256a-7a29-4b45-8baa-8fc585941ec7']
+
+[:a134256a-7a29-4b45-8baa-8fc585941ec7]
+background-color='#282c34'
+bold-color='#ABB2BF'
+bold-color-same-as-fg=true
+bold-is-bright=true
+font='Source Code Variable 12'
+foreground-color='#abb2bf'
+palette=['#000000', '#e06c75', '#98c379', '#d19a66', '#61afef', '#c678dd', '#56b6c2', '#abb2bf', '#5c6370', '#e06c75', '#98c379', '#d19a66', '#61afef', '#c678dd', '#56b6c2', '#ffffff']
+use-system-font=false
+use-theme-background=false
+use-theme-colors=false
+visible-name='One Dark'
+
+[:b1dcc9dd-5262-4d8d-a863-c897e6d979b9]
+background-color='rgb(46,52,54)'
+bold-is-bright=true
+font='Source Code Variable 12'
+foreground-color='rgb(211,215,207)'
+palette=['rgb(7,54,66)', 'rgb(220,50,47)', 'rgb(133,153,0)', 'rgb(181,137,0)', 'rgb(38,139,210)', 'rgb(211,54,130)', 'rgb(42,161,152)', 'rgb(238,232,213)', 'rgb(0,43,54)', 'rgb(203,75,22)', 'rgb(88,110,117)', 'rgb(101,123,131)', 'rgb(131,148,150)', 'rgb(108,113,196)', 'rgb(147,161,161)', 'rgb(253,246,227)']
+use-system-font=false
+use-theme-colors=false
+visible-name='Main'

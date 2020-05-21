@@ -1,0 +1,8 @@
+# Get and store gnome terminal settings, manually since it does not have a "config file" in the classic sense.
+
+# Save config(s):
+dconf dump /org/gnome/terminal/legacy/profiles:/ > ~/.config/gnome-terminal-profiles
+
+# Install config(s):
+cat ~/.config/gnome-terminal-profiles | dconf load /org/gnome/terminal/legacy/profiles:/
+
