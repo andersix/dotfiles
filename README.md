@@ -1,13 +1,21 @@
 # dotfiles
 My dotfiles. YMMV.
 
-## Setup
+## First-time Setup
 ```sh
 git init --bare $HOME/.dotfiles
 alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 dotfiles remote add origin git@github.com:andersix/dotfiles.git
 
-Add "dotfiles" alias above to your aliases for future use.
+Add "dotfiles" alias above to your shell aliases for future use.
+```
+or;
+## Setup for replication
+```sh
+alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+dotfiles remote add origin git@github.com:andersix/dotfiles.git
+
+Add "dotfiles" alias above to your shell aliases for future use.
 ```
 
 ## Replication
@@ -29,4 +37,8 @@ dotfiles status
 dotfiles add .gitconfig
 dotfiles commit -m 'Add gitconfig'
 dotfiles push
+
+dotfiles pull
+
+# etc...
 ```
