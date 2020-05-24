@@ -304,6 +304,8 @@ if [ -f /usr/share/Modules/init/bash ]; then
     . /usr/share/Modules/init/bash
 elif [ -f /etc/modules/init/bash ]; then
     . /etc/modules/init/bash
+elif [ -f /usr/local/opt/modules/init/bash ]; then  # macos, brew install modules
+    . /usr/local/opt/modules/init/bash
 else
     echo "Environment modules not found"
 fi
