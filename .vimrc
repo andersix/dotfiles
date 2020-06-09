@@ -51,6 +51,9 @@ if (empty($TMUX))
   " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
   if (has("termguicolors"))
     set termguicolors
+    colorscheme onedark
+  else
+    colorscheme jellybeans
   endif
 endif
 
@@ -106,9 +109,6 @@ syntax on
 
 "let g:solarized_termcolors=256
 "colors solarized
-
-"colorscheme jellybeans
-colorscheme onedark
 
 "highlight Comment ctermbg=blue
 "highlight Comment ctermfg=black
