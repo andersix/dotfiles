@@ -15,6 +15,7 @@ endif
 " Note, a Plug with no URL assumes 'https://github.com/', and no '.git' at the end
 call plug#begin('~/.vim-plugged')
 Plug 'tpope/vim-fugitive'
+Plug 'sheerun/vim-polyglot'
 Plug 'vhda/verilog_systemverilog.vim'
 "Plug 'nachumk/systemverilog.vim'
 Plug 'hdima/python-syntax'
@@ -317,3 +318,4 @@ if has("gui_running")
   endif
 endif
 
+set encoding=utf-8
