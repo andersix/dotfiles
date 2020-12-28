@@ -1,0 +1,16 @@
+# Show laptop batter level only if below 20%
+LP_BATTERY_THRESHOLD=40
+# Show CPU load only if above 40%
+LP_LOAD_THRESHOLD=40
+# Don't show hostname on localhost
+LP_HOSTNAME_ALWAYS=0
+# Don't show user is it is you
+LP_USER_ALWAYS=0
+# Always show the wall clock at the beginning of the line.
+LP_ENABLE_TIME=0
+# Show duration of previous command only is it was over 10s
+LP_ENABLE_RUNTIME=0
+# Never show laptop temperature
+LP_ENABLE_TEMP=0
+# Always enable colors if accessed via SSH
+LP_ENABLE_SSH_COLORS=1

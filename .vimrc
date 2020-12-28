@@ -1,3 +1,4 @@
+set encoding=utf-8
 set nocompatible
 set autoread
 set encoding=utf-8
@@ -314,10 +315,26 @@ if has("gui_running")
   if has("gui_gtk2") || has("gui_gtk3")
     set guifont=Fira\ Mono\ 12
   elseif has("gui_macvim")
-    set guifont=Menlo\ Regular:h14
+    "set guifont=Menlo\ Regular:h14
+    set guifont=Source\ Code\ Pro\ Regular:h14
   elseif has("gui_win32")
     set guifont=Consolas:h11:cANSI
   endif
 endif
 
-set encoding=utf-8
+"CSI Ps SP q
+"      Set cursor style (DECSCUSR), VT520.
+"        Ps = 0  ⇒  blinking block.
+"        Ps = 1  ⇒  blinking block (default).
+"        Ps = 2  ⇒  steady block.
+"        Ps = 3  ⇒  blinking underline.
+"        Ps = 4  ⇒  steady underline.
+"        Ps = 5  ⇒  blinking bar, xterm.
+"        Ps = 6  ⇒  steady bar, xterm.
+" Vertical bar in insert mode  
+let &t_SI = "\<Esc>[6 q"
+" Underline in replace mode
+let &t_SR = "\<Esc>[4 q"
+" Block in other modes
+let &t_EI = "\<Esc>[2 q"
+
