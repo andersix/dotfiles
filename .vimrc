@@ -18,12 +18,13 @@ Plug 'tpope/vim-fugitive'
 Plug 'sheerun/vim-polyglot'
 Plug 'vhda/verilog_systemverilog.vim'
 "Plug 'nachumk/systemverilog.vim'
+"Plug 'vim-syntastic/syntastic'
 Plug 'hdima/python-syntax'
+Plug 'vim-scripts/indentpython.vim'
 Plug 'zhuzhzh/verilog_emacsauto.vim', {'for': ['verilog', 'systemverilog'] }
 Plug 'vimtaku/hl_matchit.vim'
 "Plug 'jlfwong/vim-mercenary'
 Plug 'ludovicchabant/vim-lawrencium'
-"Plug 'vim-syntastic/syntastic'
 Plug 'nvie/vim-flake8'
 Plug 'git://repo.or.cz/vcscommand'
 Plug 'itchyny/lightline.vim'
@@ -33,6 +34,7 @@ Plug 'Konfekt/FastFold'
 Plug 'nanotech/jellybeans.vim'
 Plug 'altercation/vim-colors-solarized'
 Plug 'joshdick/onedark.vim'
+Plug 'vim-scripts/bad-whitespace'
 if has('mac')
   Plug 'junegunn/vim-xmark'
 endif
@@ -208,7 +210,21 @@ if has("autocmd")
  autocmd BufRead,BufNewFile *.lef,*.LEF         set filetype=lef
  autocmd BufRead,BufNewFile *.def               set filetype=def
  autocmd BufRead,BufNewFile *.cdl               set filetype=spice
+" au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+ " Python PEP8 indentation style guide:
+ au BufNewFile,BufRead *.py:
+     \ set tabstop=4
+     \ set softtabstop=4
+     \ set shiftwidth=4
+     \ set textwidth=79
+     \ set expandtab
+     \ set autoindent
+     \ set fileformat=unix
 endif " has ("autocmd")
+
+"
+" Press F5 to delete all trailing whitespace
+":nnoremap <silent> <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
 
 " function to cleanup a text -> mapped to F5
 fun CleanText()
@@ -220,7 +236,7 @@ fun CleanText()
     exe ":%s/ \\+$//e"
     call cursor(curline, curcol)
 endfun
-map <F5> :call CleanText()<CR>
+map <F6> :call CleanText()<CR>
 
 " Clears search highlighting by just hitting a return.
 " The <BS> clears the command line.
@@ -234,10 +250,6 @@ nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
-
-"
-" Press F5 to delete all trailing whitespace
-:nnoremap <silent> <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
 
 " Set paper size from /etc/papersize if available (Debian-specific)
 " Set paper size from /etc/paper.config if available (RedHat-specific)
@@ -297,16 +309,6 @@ set foldmethod=indent
 set foldlevel=99
 " Enable folding with the spacebar
 nnoremap <space> za
-
-" Python PEP8 indentation style guide:
-au BufNewFile,BufRead *.py:
-    \ set tabstop=4
-    \ set softtabstop=4
-    \ set shiftwidth=4
-    \ set textwidth=79
-    \ set expandtab
-    \ set autoindent
-    \ set fileformat=unix
 
 if has("gui_running")
   if has("gui_gtk2") || has("gui_gtk3")
