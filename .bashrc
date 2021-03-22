@@ -290,7 +290,6 @@ LP_HOSTNAME_ALWAYS=0
 LP_ENABLE_RUNTIME=0
 LP_ENABLE_TIME=0
 LP_ENABLE_PERM=0
-LP_DISABLED_VCS_PATH=0
 LP_ENABLE_TITLE=1
 [[ $- = *i* ]] && source ~/.liquidprompt
 #make sure the history is updated at every command
