@@ -1,0 +1,27 @@
+[global_config]
+  focus = system
+  title_use_system_font = False
+  title_font = Fira Code 9
+  title_transmit_bg_color = "#be5046"
+[keybindings]
+[profiles]
+  [[default]]
+#    cursor_color = "#aaaaaa"
+#    palette = "#fbf1c7:#cc241d:#98971a:#d79921:#458588:#b16286:#689d6a:#7c6f64:#928374:#9d0006:#79740e:#b57614:#076678:#8f3f71:#427b58:#3c3836"
+    [[theone]]
+        # palette = "#abb2bf:#828997:#5c6370:#56b6c2:#61afef:#c678dd:#98c379:#e06c75:#be5046:#d19a66:#e5c07b"
+        palette = "#272B33:#e06c75:#98c379:#d19a66:#61afef:#c678dd:#56b6c2:#abb2c0:#272B33:#e5c07b:#5c6370:#828997:#abb2bf:#c678dd:#abb2bf:#abb2c0"
+        foreground_color = "#abb2c0"
+        background_color = "#272B33"
+        cursor_color = "#abb2c0"
+
+[layouts]
+  [[default]]
+    [[[window0]]]
+      type = Window
+      parent = ""
+    [[[child1]]]
+      type = Terminal
+      parent = window0
+      profile = theone
+[plugins]
