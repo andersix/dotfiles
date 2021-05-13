@@ -1,5 +1,5 @@
 # dotfiles
-My dotfiles. YMMV.
+My dotfiles. This is my $HOME, and I'm constantly redecorating... (ymmv)
 
 ## First-time Setup
 ```sh
