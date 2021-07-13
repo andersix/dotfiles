@@ -32,6 +32,7 @@ Plug 'Konfekt/FastFold'
 Plug 'nanotech/jellybeans.vim'
 Plug 'altercation/vim-colors-solarized'
 Plug 'joshdick/onedark.vim'
+Plug 'challenger-deep-theme/vim', { 'as': 'challenger-deep' }
 if has('mac')
   Plug 'junegunn/vim-xmark'
 endif
@@ -49,11 +50,13 @@ if (empty($TMUX))
   "For Neovim > 0.1.5 and Vim > patch 7.4.1799 < https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162 >
   "Based on Vim patch 7.4.1770 (`guicolors` option) < https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd >
   " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
-  if (has("termguicolors"))
+  if has('nvim') || has('termguicolors')
     set termguicolors
-    colorscheme onedark
+"    colorscheme onedark
+    colorscheme challenger_deep
   else
-    colorscheme jellybeans
+"    colorscheme jellybeans
+    colorscheme challenger_deep
   endif
 endif
 
@@ -135,7 +138,9 @@ set autoindent    " turns it on
 set cindent       " stricter rules for C programs
 "set smartindent     " smart indent (deprecated in favor of cindent)
 filetype indent on
-set diffopt+=iwhite " ignore whitespace for vimdiff
+if !has('mac')
+  set diffopt+=iwhite " ignore whitespace for vimdiff
+endif
 set diffexpr=DiffW()
 function DiffW()
   let opt = ""

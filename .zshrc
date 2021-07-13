@@ -111,7 +111,9 @@ alias tail='tail -n $((${LINES:-`tput lines 2>/dev/null||echo -n 12`} - 2))'
 export LESS="-FX -R"
 
 # Syntax coloring with pygments in less, when opening source files
-export LESSOPEN='|~/code/dotfiles/lessfilter.sh %s'
+# MacOS: brew install pygments
+#export LESSOPEN='|~/lessfilter.sh %s'
+export LESSOPEN='|pygmentize -O style=solarized-dark -g %s'
 
 function psg() {
     #        do not show grep itself           color matching string              color the PID
