@@ -13,9 +13,6 @@ or;
 ## Setup for replication
 ```sh
 alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-dotfiles remote add origin git@github.com:andersix/dotfiles.git
-
-Add "dotfiles" alias above to your shell aliases for future use.
 ```
 
 ## Replication

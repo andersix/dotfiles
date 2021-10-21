@@ -73,8 +73,8 @@ alias hist="history"
 
 # Linux specific config {{{
 if [[ "$OSTYPE" == linux-gnu ]]; then
-  #export TERM=xterm-256color
-  export TERM=xterm-direct
+  export TERM=xterm-256color
+  #export TERM=xterm-direct
   alias ls='ls -hF --color'       # add colors for filetype recognition
   alias lm='ls -al --color=none|less'  # pipe through 'less'
   alias lx='ls -lXB'              # sort by extension
