@@ -36,15 +36,10 @@ if test -n "${BASH_VERSION-}"; then
     _LP_OPEN_ESC="\["
     _LP_CLOSE_ESC="\]"
 
-    _LP_USER_SYMBOL="\u"
-    _LP_HOST_SYMBOL="\h"
-    _LP_FQDN_SYMBOL="\H"
-    _LP_TIME_SYMBOL="\t"
-    _LP_MARK_SYMBOL='\$'
+    _LP_MARK_SYMBOL='$'
 
     _LP_FIRST_INDEX=0
     _LP_PERCENT='%'    # must be escaped on zsh
-    _LP_BACKSLASH='\\' # must be escaped on bash
 
     # Sed expression using extended regexp to match terminal
     # escape sequences with their wrappers
@@ -55,6 +50,10 @@ if test -n "${BASH_VERSION-}"; then
     # like $PWD, VCS branch names...
     __lp_escape() {
         ret="${1//\\/\\\\}"
+        if shopt -q promptvars ; then
+            ret="${ret//\$/\\\$}"
+            ret="${ret//\`/\\\`}"
+        fi
     }
 elif test -n "${ZSH_VERSION-}" ; then
     # Check for recent enough version of zsh.
@@ -68,26 +67,46 @@ elif test -n "${ZSH_VERSION-}" ; then
     _LP_OPEN_ESC="%{"
     _LP_CLOSE_ESC="%}"
 
-    _LP_USER_SYMBOL="%n"
-    _LP_HOST_SYMBOL="%m"
-    _LP_FQDN_SYMBOL="%M"
-    _LP_TIME_SYMBOL="%*"
-    _LP_MARK_SYMBOL='%(!.#.%%)'
+    _LP_MARK_SYMBOL='%%'
 
     _LP_FIRST_INDEX=1
     _LP_PERCENT='%%'
-    _LP_BACKSLASH="\\"
 
     _LP_CLEAN_ESC='%\{([^%]+|%[^}])*%\}'
 
     __lp_escape() {
-        local arg="${1//\\/\\\\}"
-        ret="${arg//\%/$_LP_PERCENT}"
+        ret="${1//\\/\\\\}"
+        ret="${ret//\%/%%}"
+        if [[ -o promptbang ]]; then
+            ret="${ret//!/!!}"
+        fi
+        if [[ -o promptsubst ]]; then
+            ret="${ret//\$/\\\$}"
+            ret="${ret//\`/\\\`}"
+        fi
     }
 else
     echo "liquidprompt: shell not supported" >&2
     return
 fi
+
+__lp_use_bash_preexec() {
+    # If https://github.com/rcaloras/bash-preexec is present, we can (and should, because it interferes with
+    # PROMPT_COMMAND and DEBUG) use the zsh-hook like behavior it provides.
+    [[ "${__bp_imported-}" == "defined" ]]
+}
+
+__lp_array_contains() {
+    local target="$1"
+    shift
+
+    for element; do
+        if [[ $element == "$target" ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
 
 ###############
 # OS specific #
@@ -177,6 +196,7 @@ __lp_source_config() {
 
 
     # Default values (globals)
+    LP_TIME_FORMAT=${LP_TIME_FORMAT:-"%H:%M:%S"}
     LP_BATTERY_THRESHOLD=${LP_BATTERY_THRESHOLD:-75}
     LP_LOAD_THRESHOLD=${LP_LOAD_THRESHOLD:-0.60}
     LP_LOAD_CAP=${LP_LOAD_CAP:-2.0}
@@ -195,7 +215,8 @@ __lp_source_config() {
     LP_PS1_PREFIX=${LP_PS1_PREFIX:-""}
     LP_PS1_POSTFIX=${LP_PS1_POSTFIX:-""}
     LP_MARK_KUBECONTEXT=${LP_MARK_KUBECONTEXT:-"⎈"}
-    LP_DELIMITER_KUBECONTEXT=${LP_DELIMITER_KUBECONTEXT:-""}
+    LP_DELIMITER_KUBECONTEXT_SUFFIX=${LP_DELIMITER_KUBECONTEXT_SUFFIX:-""}
+    LP_DELIMITER_KUBECONTEXT_PREFIX=${LP_DELIMITER_KUBECONTEXT_PREFIX:-""}
 
     LP_ENABLE_PERM=${LP_ENABLE_PERM:-1}
     LP_ENABLE_SHORTEN_PATH=${LP_ENABLE_SHORTEN_PATH:-1}
@@ -215,11 +236,16 @@ __lp_source_config() {
     LP_ENABLE_RUNTIME=${LP_ENABLE_RUNTIME:-1}
     LP_ENABLE_RUNTIME_BELL=${LP_ENABLE_RUNTIME_BELL:-0}
     LP_ENABLE_VIRTUALENV=${LP_ENABLE_VIRTUALENV:-1}
+    LP_ENABLE_RUBY_VENV=${LP_ENABLE_RUBY_VENV:-1}
+    LP_RUBY_RVM_PROMPT_OPTIONS=( ${LP_RUBY_RVM_PROMPT_OPTIONS[@]+"${LP_RUBY_RVM_PROMPT_OPTIONS[@]}"} )
+    [[ ${#LP_RUBY_RVM_PROMPT_OPTIONS[@]} == 0 ]] && LP_RUBY_RVM_PROMPT_OPTIONS=(i v g s)
+    LP_ENABLE_TERRAFORM=${LP_ENABLE_TERRAFORM:-0}
     LP_ENABLE_SCLS=${LP_ENABLE_SCLS:-1}
     LP_ENABLE_AWS_PROFILE=${LP_ENABLE_AWS_PROFILE:-1}
     LP_ENABLE_VCS_ROOT=${LP_ENABLE_VCS_ROOT:-0}
     LP_ENABLE_TITLE=${LP_ENABLE_TITLE:-0}
     LP_ENABLE_SCREEN_TITLE=${LP_ENABLE_SCREEN_TITLE:-0}
+    LP_ENABLE_TITLE_COMMAND=${LP_ENABLE_TITLE_COMMAND:-1}
     LP_ENABLE_SSH_COLORS=${LP_ENABLE_SSH_COLORS:-0}
     LP_ENABLE_FQDN=${LP_ENABLE_FQDN:-0}
     LP_DISABLED_VCS_PATHS=( ${LP_DISABLED_VCS_PATHS[@]+"${LP_DISABLED_VCS_PATHS[@]}"} )
@@ -228,6 +254,7 @@ __lp_source_config() {
     LP_ENABLE_ERROR=${LP_ENABLE_ERROR:-1}
     LP_ENABLE_DIRSTACK=${LP_ENABLE_DIRSTACK:-0}
     LP_ENABLE_KUBECONTEXT=${LP_ENABLE_KUBECONTEXT:-0}
+    LP_ENABLE_KUBE_NAMESPACE=${LP_ENABLE_KUBE_NAMESPACE:-0}
 
     LP_MARK_DEFAULT="${LP_MARK_DEFAULT:-$_LP_MARK_SYMBOL}"
     LP_MARK_BATTERY="${LP_MARK_BATTERY:-"⌁"}"
@@ -291,11 +318,13 @@ __lp_source_config() {
     LP_COLOR_IN_MULTIPLEXER=${LP_COLOR_IN_MULTIPLEXER:-$BOLD_BLUE}
     LP_COLOR_RUNTIME=${LP_COLOR_RUNTIME:-$YELLOW}
     LP_COLOR_VIRTUALENV=${LP_COLOR_VIRTUALENV:-$CYAN}
+    LP_COLOR_TERRAFORM=${LP_COLOR_TERRAFORM:-$PINK}
     LP_COLOR_DIRSTACK=${LP_COLOR_DIRSTACK:-$BOLD_YELLOW}
     LP_COLOR_KUBECONTEXT=${LP_COLOR_KUBECONTEXT:-$CYAN}
     LP_COLOR_AWS_PROFILE=${LP_COLOR_AWS_PROFILE:-$YELLOW}
 
-    if [[ -z "${LP_COLORMAP-}" ]]; then
+    LP_COLORMAP=( ${LP_COLORMAP[@]+"${LP_COLORMAP[@]}"} )
+    if [[ ${#LP_COLORMAP[@]} == 0 ]]; then
         LP_COLORMAP=(
             ""               # 0
             "$GREEN"         # 1
@@ -338,7 +367,7 @@ __lp_source_config() {
         fi
     done
 
-    # Deprecations and compatability shims
+    # Deprecations and compatibility shims
 
     if [[ -n "${LP_DISABLED_VCS_PATH-}" ]]; then
         echo "liquidprompt: LP_DISABLED_VCS_PATH is deprecated. Update your config to use LP_DISABLED_VCS_PATHS array." >&2
@@ -399,27 +428,17 @@ __lp_source_config() {
 # Initialize features based on the user config.
 lp_activate() {
     if (( _LP_SHELL_bash )); then
-        # Disable the DEBUG trap used by the RUNTIME feature
-        # (in case we are reloading LP in the same shell after disabling
-        # the feature in .liquidpromptrc)
-        (( ${LP_ENABLE_RUNTIME-0} || ${LP_ENABLE_RUNTIME_BELL-0} )) && trap - DEBUG
-
         complete -F __lp_theme_bash_complete lp_theme
     else # zsh
         # For ZSH, autoload required functions
         autoload -Uz add-zsh-hook
 
-        # Disable previous hooks as options that set them
-        # may have changed
-        {
-            add-zsh-hook -d precmd  __lp_set_prompt
-            add-zsh-hook -d preexec __lp_runtime_before
-            add-zsh-hook -d precmd  __lp_runtime_after
-        } >/dev/null
-
         # Enable the autocomplete if the autocomplete system is initialized.
         __lp_is_function compdef && compdef __lp_theme_zsh_complete lp_theme
     fi
+
+    # Disable hooks that we don't need if features will be disabled.
+    __lp_disable_hooks
 
     # TermInfo feature detection
     _lp_af_colors=() _lp_ab_colors=()
@@ -494,8 +513,24 @@ lp_activate() {
     fi
 
     _lp_require_tool KUBECONTEXT kubectl
+    _lp_require_tool TERRAFORM terraform
 
     unset -f _lp_require_tool
+
+    # LP_ENABLE_RUBY_VENV depends either from rvm or rbenv. Thus we cannot
+    # directly use _lp_require_tool for it.
+    # Also, to avoid to check twice which is the current ruby virtual env
+    # program in use, we set here an internal variable holding its name if we
+    # detect one of them.
+    if (( LP_ENABLE_RUBY_VENV )) ; then
+        if command -v rvm-prompt >/dev/null ; then
+            _LP_RUBY_VENV_PROGRAM=rvm
+        elif command -v rbenv >/dev/null ; then
+            _LP_RUBY_VENV_PROGRAM=rbenv
+        else
+            LP_ENABLE_RUBY_VENV=0
+        fi
+    fi
 
     if (( LP_ENABLE_DETACHED_SESSIONS )); then
         command -v screen >/dev/null ; _LP_ENABLE_SCREEN=$(( ! $? ))
@@ -509,14 +544,16 @@ lp_activate() {
     if _lp_multiplexer; then
         (( LP_ENABLE_TITLE = LP_ENABLE_TITLE && LP_ENABLE_SCREEN_TITLE ))
         LP_TITLE_OPEN=$'\Ek'
-        # "\e\" but on bash \ must be escaped
-        LP_TITLE_CLOSE=$'\E'"$_LP_BACKSLASH"
+        LP_TITLE_CLOSE=$'\E\\'
     else
         LP_TITLE_OPEN=$'\E]0;'
         LP_TITLE_CLOSE=$'\a'
     fi
 
     [[ "_${TERM-}" == _linux* ]] && LP_ENABLE_TITLE=0
+
+    # Can not show title command if the title feature is disabled.
+    (( LP_ENABLE_TITLE )) || LP_ENABLE_TITLE_COMMAND=0
 
     # update_terminal_cwd is a shell function available on MacOS X Lion that
     # will update an icon of the directory displayed in the title of the terminal
@@ -557,6 +594,8 @@ lp_activate() {
             LP_DISABLED_VCS_PATHS=("/")
         fi
 
+        LP_MARK_DEFAULT='#'
+
         LP_COLOR_MARK=$LP_COLOR_MARK_ROOT
         LP_COLOR_PATH=$LP_COLOR_PATH_ROOT
         LP_COLOR_USER=$LP_COLOR_USER_ROOT
@@ -565,21 +604,6 @@ lp_activate() {
     #################
     # Where are we? #
     #################
-
-    _LP_RUNTIME_LAST_SECONDS=$SECONDS
-
-    if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL)); then
-        if (( _LP_SHELL_zsh )); then
-            add-zsh-hook preexec __lp_runtime_before
-            add-zsh-hook precmd  __lp_runtime_after
-        else
-            _LP_AT_PROMPT=0
-            # __lp_runtime_before gets called just before bash executes a command,
-            # including $PROMPT_COMMAND
-            # Pass $_ to this call, because it sets $_ to what it already was
-            trap '__lp_runtime_before "$_"' DEBUG
-        fi
-    fi
 
     if (( LP_ENABLE_TEMP )); then
         # Try each _lp_temp method
@@ -663,7 +687,7 @@ __lp_is_function() {
     fi
 }
 
-# Count the number of lines in the input string. A faster subsitute for 'wc -l'.
+# Count the number of lines in the input string. A faster substitute for 'wc -l'.
 __lp_line_count() {
   local var="${1//[!$'\n']}"
   count=${#var}
@@ -699,7 +723,7 @@ __lp_floating_scale() {
 __lp_pwd_tilde() {  # [path]
     # Needs to be in a variable, as different versions of Bash treat '~' in a
     # substitution differently
-    local _path=${1:-$PWD} tilde="~"
+    local _path="${1:-$PWD}" tilde="~"
     lp_pwd_tilde="${_path/#$HOME/$tilde}"
 }
 
@@ -827,7 +851,7 @@ __lp_theme_zsh_complete() {
 ##########################
 
 __lp_get_unique_directory() {
-    local directory=${1##*/} root=${1%/*}
+    local directory="${1##*/}" root="${1%/*}"
     local -a matching
     local -i i
     for (( i=1; i < ${#directory}; i++ )); do
@@ -866,21 +890,23 @@ __lp_end_path_left_shortening() {
 #   truncate_chars_to_unique_dir
 #   truncate_to_last_dir
 _lp_path_format() {
-    local path_format=${1-$LP_COLOR_PATH}
-    local last_directory_format=${2:-$path_format}
-    local vcs_root_format=${3:-$last_directory_format}
-    local shortened_directory_format=${4:-$path_format}
-    local separator=${5-"/"}
-    local separator_format=${6-}
+    local path_format="${1-$LP_COLOR_PATH}"
+    local last_directory_format="${2:-$path_format}"
+    local vcs_root_format="${3:-$last_directory_format}"
+    local shortened_directory_format="${4:-$path_format}"
+    local separator="${5-"/"}"
+    local separator_format="${6-}"
 
     lp_path=
     lp_path_format=
 
+    local ret
+
     local lp_pwd_tilde
     __lp_pwd_tilde
-    local display_path=$lp_pwd_tilde
+    local display_path="$lp_pwd_tilde"
 
-    local -i path_length=${#display_path}
+    local -i path_length="${#display_path}"
 
     local lp_vcs_root lp_vcs_type
     local vcs_root_directory=
@@ -897,10 +923,12 @@ _lp_path_format() {
             lp_path=$display_path
         fi
 
+        __lp_escape "$lp_path"
+
         if [[ $display_path == $vcs_root_directory ]]; then
-            lp_path_format="${vcs_root_format}${lp_path}"
+            lp_path_format="${vcs_root_format}${ret}"
         else
-            lp_path_format="${last_directory_format}${lp_path}"
+            lp_path_format="${last_directory_format}${ret}"
         fi
         return
     else
@@ -919,7 +947,7 @@ _lp_path_format() {
     local path_to_proccess="${display_path}/" current_path="" current_directory="" lp_unique_directory
 
     local -i max_len=$(( ${COLUMNS:-80} * LP_PATH_LENGTH / 100 )) directory_count=0 needed_length
-    local -i shortened_path_length=$path_length is_shortening=0 unshortened_path_length
+    local -i shortened_path_length="$path_length" is_shortening=0 unshortened_path_length
     local unshortened_path_shorten_string unshortened_path_format_shorten_string shortened_path
 
     while [[ -n $path_to_proccess ]]; do
@@ -942,12 +970,14 @@ _lp_path_format() {
             __lp_end_path_left_shortening
             # No shortening
             lp_path+=$current_directory
-            lp_path_format+="${vcs_root_format}${current_directory}"
+            __lp_escape "$current_directory"
+            lp_path_format+="${vcs_root_format}${ret}"
         elif [[ -z $path_to_proccess ]]; then
             __lp_end_path_left_shortening
             # Last directory
             lp_path+=$current_directory
-            lp_path_format+="${last_directory_format}${current_directory}"
+            __lp_escape "$current_directory"
+            lp_path_format+="${last_directory_format}${ret}"
         elif (( LP_ENABLE_SHORTEN_PATH && directory_count > LP_PATH_KEEP \
             && ( shortened_path_length > max_len || ( shortened_path_length >= max_len && is_shortening ) ) )); then
 
@@ -955,7 +985,8 @@ _lp_path_format() {
                 __lp_get_unique_directory "$current_path"; then
 
                 lp_path+=$lp_unique_directory
-                lp_path_format+="${shortened_directory_format}${lp_unique_directory}"
+                __lp_escape "$lp_unique_directory"
+                lp_path_format+="${shortened_directory_format}${ret}"
                 shortened_path_length=$(( shortened_path_length - ${#current_directory} + ${#lp_unique_directory} ))
             elif [[ $LP_PATH_METHOD == "truncate_chars_from_path_left" ]]; then
                 # The only way to know if this consecutive directory shortening
@@ -985,7 +1016,8 @@ _lp_path_format() {
 
                     shortened_path="${LP_MARK_SHORTEN_PATH}${current_directory:$needed_length}"
                     lp_path+=$shortened_path
-                    lp_path_format+="${shortened_directory_format}${shortened_path}"
+                    __lp_escape "$shortened_path"
+                    lp_path_format+="${shortened_directory_format}${ret}"
 
                     is_shortening=0
                 fi
@@ -994,25 +1026,29 @@ _lp_path_format() {
 
                 shortened_path="${current_directory:0:$LP_PATH_CHARACTER_KEEP}${LP_MARK_SHORTEN_PATH}"
                 lp_path+=$shortened_path
-                lp_path_format+="${shortened_directory_format}${shortened_path}"
+                __lp_escape "$shortened_path"
+                lp_path_format+="${shortened_directory_format}${ret}"
                 shortened_path_length=$(( shortened_path_length - ${#current_directory} + ${#LP_MARK_SHORTEN_PATH} + LP_PATH_CHARACTER_KEEP ))
             elif [[ $LP_PATH_METHOD == "truncate_chars_from_dir_middle" ]] && \
                 (( ${#LP_MARK_SHORTEN_PATH} + LP_PATH_CHARACTER_KEEP * 2 < ${#current_directory} )); then
 
                 shortened_path="${current_directory:0:$LP_PATH_CHARACTER_KEEP}${LP_MARK_SHORTEN_PATH}${current_directory: -$LP_PATH_CHARACTER_KEEP}"
                 lp_path+=$shortened_path
-                lp_path_format+="${shortened_directory_format}${shortened_path}"
+                __lp_escape "$shortened_path"
+                lp_path_format+="${shortened_directory_format}${ret}"
                 shortened_path_length=$(( shortened_path_length - ${#current_directory} + ${#LP_MARK_SHORTEN_PATH} + LP_PATH_CHARACTER_KEEP * 2 ))
             else
                 # Need to shorten, but no method matched, or the matched method
                 # did not make the string any shorter.
                 lp_path+=$current_directory
-                lp_path_format+="${path_format}${current_directory}"
+                __lp_escape "$current_directory"
+                lp_path_format+="${path_format}${ret}"
             fi
         else
             __lp_end_path_left_shortening
             lp_path+=$current_directory
-            lp_path_format+="${path_format}${current_directory}"
+            __lp_escape "$current_directory"
+            lp_path_format+="${path_format}${ret}"
         fi
 
         if [[ -n $path_to_proccess && ( $current_path != "/" || $separator != "/" ) ]] && (( ! is_shortening )); then
@@ -1133,6 +1169,55 @@ _lp_python_env_color() {
     lp_python_env_color="[${LP_COLOR_VIRTUALENV}${lp_python_env}${NO_COL}]"
 }
 
+_lp_ruby_env() {
+    (( LP_ENABLE_RUBY_VENV )) || return 2
+
+    local ret
+
+    if [[ "$_LP_RUBY_VENV_PROGRAM" = "rvm" ]] ; then
+        __lp_escape "$(rvm-prompt "${LP_RUBY_RVM_PROMPT_OPTIONS[@]}")"
+        lp_ruby_env=$ret
+    elif [[ "$_LP_RUBY_VENV_PROGRAM" = "rbenv" ]] ; then
+        local rbenv_ver="$(rbenv version)"
+        # Only first word is necessary
+        __lp_escape "${rbenv_ver%%" (set"*}"
+        lp_ruby_env=$ret
+    else
+        return 1
+    fi
+}
+
+_lp_ruby_env_color() {
+    _lp_ruby_env || return "$?"
+
+    lp_ruby_env_color="[${LP_COLOR_VIRTUALENV}${lp_ruby_env}${NO_COL}]"
+}
+
+_lp_terraform_env() {
+    (( LP_ENABLE_TERRAFORM )) || return 2
+
+    local ret
+
+    if [[ -d .terraform ]]; then
+        local _tf_workspace
+        _tf_workspace="$(\terraform workspace show 2>/dev/null)"
+        if [[ -n "$_tf_workspace" ]]; then
+            __lp_escape "${_tf_workspace}"
+            lp_terraform_env=$ret
+        else
+            return 1
+        fi
+    else
+        return 1
+    fi
+}
+
+_lp_terraform_env_color() {
+    _lp_terraform_env || return "$?"
+
+    lp_terraform_env_color="[${LP_COLOR_TERRAFORM}${lp_terraform_env}${NO_COL}]"
+}
+
 _lp_software_collections() {
     (( LP_ENABLE_SCLS )) || return 2
 
@@ -1156,21 +1241,40 @@ _lp_kubernetes_context() {
     (( LP_ENABLE_KUBECONTEXT )) || return 2
 
     local kubernetes_context
-    kubernetes_context=$(kubectl config current-context 2>/dev/null) || return 1
 
-    if [[ -n "$LP_DELIMITER_KUBECONTEXT" ]]; then
-        kubernetes_context="${kubernetes_context%%${LP_DELIMITER_KUBECONTEXT}*}"
+    if (( LP_ENABLE_KUBE_NAMESPACE )); then
+        local line kubernetes_namespace
+        line=$(kubectl config view --minify --output 'jsonpath={.current-context}{"/"}{..namespace}')
+        kubernetes_context=${line%/*}
+        kubernetes_namespace=${line##*/}
+    else
+        kubernetes_context=$(kubectl config current-context 2>/dev/null) || return 1
+    fi
+
+    if [[ -n "$LP_DELIMITER_KUBECONTEXT_PREFIX" ]]; then
+        kubernetes_context="${kubernetes_context##*${LP_DELIMITER_KUBECONTEXT_PREFIX}}"
+    fi
+
+    if [[ -n "$LP_DELIMITER_KUBECONTEXT_SUFFIX" ]]; then
+        kubernetes_context="${kubernetes_context%%${LP_DELIMITER_KUBECONTEXT_SUFFIX}*}"
     fi
 
     local ret
     __lp_escape "$kubernetes_context"
     lp_kubernetes_context=$ret
+
+    if [[ -n ${kubernetes_namespace-} ]]; then
+        __lp_escape "$kubernetes_namespace"
+        lp_kubernetes_namespace=$ret
+    else
+        unset lp_kubernetes_namespace
+    fi
 }
 
 _lp_kubernetes_context_color() {
     _lp_kubernetes_context || return "$?"
 
-    lp_kubernetes_context_color="[${LP_MARK_KUBECONTEXT}${LP_COLOR_KUBECONTEXT}${lp_kubernetes_context}${NO_COL}]"
+    lp_kubernetes_context_color="[${LP_MARK_KUBECONTEXT}${LP_COLOR_KUBECONTEXT}${lp_kubernetes_context}${lp_kubernetes_namespace+:}${lp_kubernetes_namespace-}${NO_COL}]"
 }
 
 # Same as bash '\l', but can be inlined as a constant as the value will not
@@ -1196,13 +1300,20 @@ _lp_user() {
 _lp_username() {
     if (( LP_USER_ALWAYS == -1 )); then
         # No username ever
-        lp_username=''
         return 2
     elif (( LP_USER_ALWAYS )) || ! _lp_user; then
-        lp_username=${_LP_USER_SYMBOL}
+        lp_username_raw=${USER:-${USERNAME:-${LOGNAME-}}}
+
+        if [[ -z $lp_username_raw ]]; then
+            lp_username_raw=$(id -nu 2>/dev/null)
+        fi
+
+        local ret
+        __lp_escape "$lp_username_raw"
+        lp_username=$ret
+
         return 0
     else
-        lp_username=''
         return 1
     fi
 }
@@ -1234,21 +1345,22 @@ _lp_sudo_active_color() {
 _lp_hostname() {
     # Only process hostname elements if we haven't turned them off
     if (( LP_HOSTNAME_ALWAYS != -1 )); then
-
-        # Which host symbol should we use?
-        if (( LP_ENABLE_FQDN )); then
-            LP_HOST_SYMBOL="${_LP_FQDN_SYMBOL}"
-        else
-            LP_HOST_SYMBOL="${_LP_HOST_SYMBOL}"
-        fi
-
-        lp_hostname=${LP_HOST_SYMBOL}
-
         _lp_connection
         if [[ $lp_connection == lcl ]] && ! (( LP_HOSTNAME_ALWAYS )); then
             # no hostname if local
             return 1
         fi
+
+        lp_hostname_raw=${HOSTNAME:-${HOST-}}
+
+        # Truncate to the first subdomain
+        if ! (( LP_ENABLE_FQDN )); then
+            lp_hostname_raw=${lp_hostname_raw%%.*}
+        fi
+
+        local ret
+        __lp_escape "$lp_hostname_raw"
+        lp_hostname=$ret
     else
         return 2
     fi
@@ -1323,7 +1435,7 @@ _lp_aws_profile() {
 
     local ret
 
-    local aws_profile="${AWS_PROFILE-${AWS_DEFAULT_PROFILE-}}"
+    local aws_profile="${AWS_PROFILE-${AWS_DEFAULT_PROFILE-${AWS_VAULT-}}}"
     if [[ -n $aws_profile ]]; then
         __lp_escape "${aws_profile}"
         lp_aws_profile=$ret
@@ -1919,7 +2031,7 @@ _lp_hg_head_status() {
 _lp_hg_stash_count() {
     local shelves count
     shelves="$(\hg shelve --list 2>/dev/null; printf x)"
-    _lp_line_count "${shelves%x}"
+    __lp_line_count "${shelves%x}"
     lp_vcs_stash_count="$count"
     (( lp_vcs_stash_count ))
 }
@@ -2007,7 +2119,7 @@ _lp_svn_uncommitted_files() {
     # svn status is unsafe with newline chars in filenames, which will throw
     # off this count
     files="$(\svn status --quiet 2>/dev/null; printf x)"
-    _lp_line_count "${files%x}"
+    __lp_line_count "${files%x}"
     lp_vcs_uncommitted_files="$count"
     (( lp_vcs_uncommitted_files ))
 }
@@ -2084,7 +2196,7 @@ _lp_fossil_head_status() {
 _lp_fossil_stash_count() {
     local stashes count
     stashes="$(\fossil stash list 2>/dev/null; printf x)"
-    _lp_line_count "${stashes%x}"
+    __lp_line_count "${stashes%x}"
     # Each stash takes up two lines, and no stashes is one line
     lp_vcs_stash_count=$(( count / 2 ))
     (( lp_vcs_stash_count ))
@@ -2094,7 +2206,7 @@ _lp_fossil_stash_count() {
 _lp_fossil_untracked_files() {
     local extras count
     extras="$(\fossil extras 2>/dev/null; printf x)"
-    _lp_line_count "${extras%x}"
+    __lp_line_count "${extras%x}"
     lp_vcs_untracked_files=$count
     (( lp_vcs_untracked_files ))
 }
@@ -2103,7 +2215,7 @@ _lp_fossil_untracked_files() {
 _lp_fossil_uncommitted_files() {
     local files
     files="$(\fossil changes 2>/dev/null; printf x)"
-    _lp_line_count "${files%x}"
+    __lp_line_count "${files%x}"
     lp_vcs_uncommitted_files=$count
     (( lp_vcs_uncommitted_files ))
 }
@@ -2359,29 +2471,10 @@ _lp_runtime_format() {
     fi
 }
 
-if (( _LP_SHELL_zsh )); then
-    __lp_runtime_before() {
-      _LP_RUNTIME_LAST_SECONDS=$SECONDS
-    }
-else
-    __lp_runtime_before() {
-        # For debugging
-        #echo "XXX $BASH_COMMAND"
-
-        # If this is the first time after the user submitted the command,
-        # record the time
-        if (( _LP_AT_PROMPT )); then
-            _LP_RUNTIME_SECONDS=-1 _LP_RUNTIME_LAST_SECONDS=$SECONDS _LP_AT_PROMPT=0
-        fi
-        # If this is when the prompt is being drawn, the command is done,
-        # so calculate the time. Note these two events could be at the same
-        # time, so no elif is used
-        if [[ "$BASH_COMMAND" == "${PROMPT_COMMAND-}" ]]; then
-            _LP_AT_PROMPT=1
-            __lp_runtime_after
-        fi
-    }
-fi
+__lp_runtime_before() {
+    _LP_RUNTIME_LAST_SECONDS=$SECONDS
+    _LP_RUNTIME_SECONDS=-1
+}
 
 # Compute number of seconds since the command was started
 __lp_runtime_after() {
@@ -2478,7 +2571,9 @@ __lp_temp_sensors() {
     local IFS=$' \t\n'
     for i in $(LC_ALL=C \sensors -u 2>/dev/null |
             sed -n 's/^  temp[0-9][0-9]*_input: \([0-9]*\)\..*$/\1/p'); do
-        (( $i > ${lp_temperature:-0} )) && lp_temperature=$i
+        if [[ -z ${lp_temperature-} ]] || (( $i > ${lp_temperature:-0} )); then
+            lp_temperature=$i
+        fi
     done
 }
 
@@ -2489,7 +2584,9 @@ __lp_temp_acpi() {
     # Only the integer part is retained
     for i in $(LC_ALL=C \acpi -t |
             sed -n 's/.* \(-\{0,1\}[0-9]*\)\.[0-9]* degrees C$/\1/p'); do
-        (( $i > ${lp_temperature:-0} )) && lp_temperature=$i
+        if [[ -z ${lp_temperature-} ]] || (( $i > ${lp_temperature:-0} )); then
+            lp_temperature=$i
+        fi
     done
 }
 
@@ -2508,7 +2605,7 @@ __lp_temp_detect() {
         # Check that we can retrieve temperature at least once
         "$_LP_TEMP_FUNCTION" 2>/dev/null
         # If $lp_temperature is set, success!
-        [[ -n "$lp_temperature" ]] && return 0
+        [[ -n "${lp_temperature-}" ]] && return 0
         unset _LP_TEMP_FUNCTION
     done
     return 1
@@ -2518,9 +2615,10 @@ __lp_temp_detect() {
 _lp_temperature() {
     (( LP_ENABLE_TEMP )) || return 2
 
-    lp_temperature=0
+    unset lp_temperature
     "$_LP_TEMP_FUNCTION"
 
+    [[ -z ${lp_temperature-} ]] && return 1
     (( lp_temperature >= LP_TEMP_THRESHOLD ))
 }
 
@@ -2570,6 +2668,29 @@ lp_title() {
     fi
 }
 
+if (( _LP_SHELL_zsh )); then
+    __lp_get_last_command_line() {
+        command=$history[$HISTCMD]
+    }
+else
+    __lp_get_last_command_line() {
+        command=$(HISTTIMEFORMAT= builtin history 1 2>/dev/null)
+        command=${command#*[[:digit:]][* ] }
+
+        # Fallback measure if something goes wrong.
+        if [[ -z $command ]]; then
+            command=$BASH_COMMAND
+        fi
+    }
+fi
+
+__lp_print_title_command() {
+    local command
+    __lp_get_last_command_line
+
+    printf '%s' "${LP_TITLE_OPEN}${_lp_manual_title:-${_lp_generated_title-${SHELL+"$SHELL \$ "}}}${command}${LP_TITLE_CLOSE}"
+}
+
 ###################
 # CURRENT TIME    #
 ###################
@@ -2616,13 +2737,15 @@ _lp_analog_time_color() {
 _lp_time() {
     (( LP_ENABLE_TIME && ! LP_TIME_ANALOG )) || return 2
 
-    lp_time=${_LP_TIME_SYMBOL}
+    local ret
+    __lp_escape "$(date "+${LP_TIME_FORMAT}")"
+    lp_time=$ret
 }
 
 _lp_time_color() {
     _lp_time || return "$?"
 
-    lp_time_color="${LP_COLOR_TIME}${_LP_TIME_SYMBOL}${NO_COL}"
+    lp_time_color="${LP_COLOR_TIME}${lp_time}${NO_COL}"
 }
 
 #################
@@ -2668,12 +2791,6 @@ _lp_default_theme_activate() {
 
     _lp_terminal_device
     LP_TTYN=$lp_terminal_device
-
-    if _lp_time_color; then
-        LP_TIME="${lp_time_color} "
-    else
-        LP_TIME=
-    fi
 }
 
 _lp_default_theme_directory() {
@@ -2689,7 +2806,7 @@ _lp_default_theme_directory() {
         fi
     fi
 
-    local lp_path lp_path_format
+    local lp_path_format
     _lp_path_format "$LP_COLOR_PATH" "$LP_COLOR_PATH_LAST_DIR" "$LP_COLOR_PATH_VCS_ROOT" "$LP_COLOR_PATH_SHORTENED" "/" "$LP_COLOR_PATH_SEPARATOR"
 
     LP_PWD="${lp_path_format}${NO_COL}"
@@ -2718,8 +2835,12 @@ _lp_default_theme_prompt_data() {
         LP_BATT=
     fi
 
-    if _lp_analog_time_color; then
+    if _lp_time_color; then
+        LP_TIME="$lp_time_color "
+    elif _lp_analog_time_color; then
         LP_TIME="$lp_analog_time_color "
+    else
+        LP_TIME=
     fi
 
     if _lp_sudo_active_color; then
@@ -2745,10 +2866,22 @@ _lp_default_theme_prompt_data() {
         LP_VENV=
     fi
 
+    if _lp_ruby_env_color; then
+        LP_RUBY_VENV=" $lp_ruby_env_color"
+    else
+        LP_RUBY_VENV=
+    fi
+
     if _lp_kubernetes_context_color; then
         LP_KUBECONTEXT=" $lp_kubernetes_context_color"
     else
         LP_KUBECONTEXT=
+    fi
+
+    if _lp_terraform_env_color; then
+        LP_TFSPACE=" $lp_terraform_env_color"
+    else
+        LP_TFSPACE=
     fi
 
     if _lp_software_collections_color; then
@@ -2793,10 +2926,10 @@ _lp_default_theme_prompt_template() {
     if [[ -z "${LP_PS1-}" ]]; then
         # add title escape time, jobs, load and battery
         PS1="${LP_PS1_PREFIX}${LP_TIME}${LP_BATT}${LP_LOAD}${LP_TEMP}${LP_JOBS}"
-        # add user, host and permissions colon
-        PS1+="${LP_BRACKET_OPEN}${LP_USER}${LP_HOST}${LP_PERM}"
+        # add user, host, permissions colon, working directory, and dirstack
+        PS1+="${LP_BRACKET_OPEN}${LP_USER}${LP_HOST}${LP_PERM}${LP_PWD}${LP_DIRSTACK}${LP_BRACKET_CLOSE}"
 
-        PS1+="${LP_PWD}${LP_DIRSTACK}${LP_BRACKET_CLOSE}${LP_SCLS}${LP_AWS_PROFILE}${LP_VENV}${LP_KUBECONTEXT}${LP_PROXY}"
+        PS1+="${LP_SCLS}${LP_AWS_PROFILE}${LP_VENV}${LP_RUBY_VENV}${LP_TFSPACE}${LP_KUBECONTEXT}${LP_PROXY}"
 
         # Add VCS infos
         # If root, the info has not been collected unless LP_ENABLE_VCS_ROOT
@@ -2806,8 +2939,8 @@ _lp_default_theme_prompt_template() {
         # add return code and prompt mark
         PS1+="${LP_RUNTIME}${LP_ERR}${LP_MARK_PREFIX}${LP_COLOR_MARK}${LP_MARK}${LP_PS1_POSTFIX}"
 
-        # Get the current prompt on the fly and make it a title
-        _lp_formatted_title "$PS1"
+        # Get the core sections without prompt escapes and make them into a title.
+        _lp_formatted_title "${LP_PS1_PREFIX}${LP_MARK_BRACKET_OPEN}${lp_username_raw-}${lp_hostname_raw+@}${lp_hostname_raw-}${LP_MARK_PERM}${lp_path-}${LP_MARK_BRACKET_CLOSE}${LP_MARK_PREFIX}${lp_smart_mark} ${LP_PS1_POSTFIX}"
 
         # Glue the bash prompt always go to the first column.
         # Avoid glitches after interrupting a command with Ctrl-C
@@ -2834,6 +2967,10 @@ __lp_set_prompt() {
 
     #TODO: unused?
     local GREP_OPTIONS=
+
+    if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL )); then
+        __lp_runtime_after
+    fi
 
     # bash: execute the old prompt hook
     eval "$LP_OLD_PROMPT_COMMAND"
@@ -2862,8 +2999,35 @@ __lp_set_prompt() {
     "$_LP_THEME_PROMPT_FUNCTION"
 
     if (( LP_ENABLE_TITLE )); then
-        PS1="${_LP_OPEN_ESC}${LP_TITLE_OPEN}${_lp_manual_title:-${_lp_generated_title-${SHELL-}}}${LP_TITLE_CLOSE}${_LP_CLOSE_ESC}${PS1}"
+        printf '%s' "${LP_TITLE_OPEN}${_lp_manual_title:-${_lp_generated_title-${SHELL-}}}${LP_TITLE_CLOSE}"
     fi
+}
+
+__lp_before_command() {
+    # For debugging
+    #printf 'XXX %s\n' "$BASH_COMMAND"
+
+    # If this is the first time after the user submitted the command,
+    # execute the hooks.
+    if (( _LP_AT_PROMPT )); then
+        _LP_AT_PROMPT=0
+
+        if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL )); then
+            __lp_runtime_before
+        fi
+
+        if (( LP_ENABLE_TITLE_COMMAND )); then
+            __lp_print_title_command
+        fi
+    fi
+
+    # If this is when the prompt is being drawn, the command is done,
+    # so mark the next trap. Note these two events could be at the same
+    # time, so no elif is used.
+    if [[ "$BASH_COMMAND" == __lp_set_prompt ]]; then
+        _LP_AT_PROMPT=1
+    fi
+
 }
 
 prompt_tag() {
@@ -2882,30 +3046,13 @@ prompt_on() {
     # if Liquid Prompt has not been already set
     if [[ -z "${LP_OLD_PS1-}" ]]; then
         LP_OLD_PS1="$PS1"
-        if (( _LP_SHELL_bash )); then
-            LP_OLD_PROMPT_COMMAND="${PROMPT_COMMAND-}"
-            _LP_OLD_SHOPT="$(shopt -p promptvars)"
-        else # zsh
-            LP_OLD_PROMPT_COMMAND=""
-            _LP_ZSH_PROMPT_THEME=""
-            if [[ -n "${prompt_theme-}" && "$prompt_theme" != off ]]; then
-                _LP_ZSH_PROMPT_THEME="$prompt_theme"
-                # Disable the prompt to disable its precmd hook
-                prompt off
-            fi
-            _LP_OLD_SETOPT=()
-            # Dump option names: echo ${(ko)options}
-            for o in promptpercent promptbang promptsubst
-            do
-                if [[ "${options[$o]}" = on ]]; then
-                    _LP_OLD_SETOPT+=("$o")
-                else
-                    _LP_OLD_SETOPT+=("no$o")
-                fi
-            done
-        fi
     fi
+
     if (( _LP_SHELL_bash )); then
+        if [[ -z ${LP_OLD_PROMPT_COMMAND+x} ]]; then
+            LP_OLD_PROMPT_COMMAND="${PROMPT_COMMAND-}"
+        fi
+
         # Prevent some cases where the user shoots in his own foot.
         # PROMPT_COMMAND is not exported by default, but some users
         # incorrectly export it from their profile/bashrc (GitHub #450),
@@ -2916,52 +3063,151 @@ prompt_on() {
             declare -g +x PROMPT_COMMAND
         fi
 
-        # Disable parameter/command expansion from PS1
-        shopt -u promptvars
-        PROMPT_COMMAND=__lp_set_prompt
-        (( LP_DEBUG_TIME )) && PROMPT_COMMAND="time $PROMPT_COMMAND" || true
+        if ! __lp_use_bash_preexec; then
+            PROMPT_COMMAND=__lp_set_prompt
+
+            if (( LP_DEBUG_TIME )); then
+                PROMPT_COMMAND="time $PROMPT_COMMAND"
+            fi
+
+            if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL || LP_ENABLE_TITLE_COMMAND )); then
+                _LP_AT_PROMPT=0
+                _LP_RUNTIME_LAST_SECONDS=$SECONDS
+                # __lp_before_command gets called just before bash executes a command,
+                # including $PROMPT_COMMAND
+                # Pass $_ to this call, because it sets $_ to what it already was
+                trap '__lp_before_command "$_"' DEBUG
+            fi
+        else
+            # We do not want __lp_set_prompt to show up twice in precmd_functions; if it does, then LP_ENABLE_ERROR
+            # breaks because even if the first call of __lp_set_prompt has $? != 0, the second one will have $? == 0.
+            # (Same for __lp_debug_timed_lp_set_prompt.)
+
+            # This conditional is intended to check  $precmd_functions for the presence of '__lp_set_prompt' or
+            # '__lp_debug_timed_lp_set_prompt' so they get added at most once
+            if ! ( __lp_array_contains __lp_set_prompt ${precmd_functions[@]+"${precmd_functions[@]}"} \
+                || __lp_array_contains __lp_debug_timed_set_prompt ${precmd_functions[@]+"${precmd_functions[@]}"} );
+            then
+                if (( LP_DEBUG_TIME )); then
+                    __lp_debug_timed_lp_set_prompt() {
+                        time __lp_set_prompt
+                    }
+                    precmd_functions+=(__lp_debug_timed_lp_set_prompt)
+                else
+                    precmd_functions+=(__lp_set_prompt)
+                fi
+            fi
+            if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL )); then
+                _LP_RUNTIME_LAST_SECONDS=$SECONDS
+                # It's less bad to have this be duped than __lp_set_prompt, but let's be sure
+                if ! ( __lp_array_contains __lp_runtime_before ${preexec_functions[@]+"${preexec_functions[@]}"} ); then
+                    preexec_functions+=(__lp_runtime_before)
+                fi
+            fi
+            if (( LP_ENABLE_TITLE_COMMAND )); then
+                # It's less bad to have this be duped than __lp_set_prompt, but let's be sure
+                if ! ( __lp_array_contains __lp_title_command ${preexec_functions[@]+"${preexec_functions[@]}"} ); then
+                    preexec_functions+=(__lp_title_command)
+                fi
+            fi
+        fi
     else # zsh
-        [[ -n "${_LP_ZSH_HOOK-}" ]] && add-zsh-hook -d precmd "$_LP_ZSH_HOOK"
-        # Set options that affect PS1 evaluation
-        # Disable parameter/command expansion; enable percent expansion
-        setopt promptpercent nopromptbang nopromptsubst
-        # 'time' doesn't seem to work on shell functions: no time output
-        #if (( LP_DEBUG_TIME )); then
-        #    _lp_main_precmd() {
-        #        local TIMEFMT='Liquid Prompt build time: %*E'
-        #        time __lp_set_prompt
-        #    }
-        #    _LP_ZSH_HOOK=_lp_main_precmd
-        #else
-            _LP_ZSH_HOOK=__lp_set_prompt
-        #fi
-        add-zsh-hook precmd "$_LP_ZSH_HOOK"
+        LP_OLD_PROMPT_COMMAND=""
+
+        if [[ -n "${prompt_theme-}" && "$prompt_theme" != off ]]; then
+            _LP_ZSH_PROMPT_THEME="$prompt_theme"
+            # Disable the prompt to disable its precmd hook
+            prompt off
+        fi
+
+        _LP_OLD_SETOPT=(${_LP_OLD_SETOPT[@]+"${_LP_OLD_SETOPT[@]}"})
+        if (( ! ${#_LP_OLD_SETOPT} )); then
+            # Dump option names: echo ${(ko)options}
+            for o in promptpercent
+            do
+                if [[ "${options[$o]}" = on ]]; then
+                    _LP_OLD_SETOPT+=("$o")
+                else
+                    _LP_OLD_SETOPT+=("no$o")
+                fi
+            done
+        fi
+
+        # Set options that affect PS1 evaluation; enable percent expansion
+        setopt promptpercent
+
+        add-zsh-hook precmd __lp_set_prompt
+
+        if (( LP_ENABLE_RUNTIME || LP_ENABLE_RUNTIME_BELL )); then
+            _LP_RUNTIME_LAST_SECONDS=$SECONDS
+            add-zsh-hook preexec __lp_runtime_before
+        fi
+        if (( LP_ENABLE_TITLE_COMMAND )); then
+            add-zsh-hook preexec __lp_print_title_command
+        fi
+    fi
+}
+
+__lp_disable_hooks() {
+    if (( _LP_SHELL_bash )); then
+        if __lp_use_bash_preexec; then
+            # Disable previous hooks as options that set them
+            # may have changed
+            # (This is "remove the specified value(s) from the array", which bash does not make easy.)
+            local -a new_precmd_functions=()
+            for value in ${precmd_functions[@]+"${precmd_functions[@]}"}; do
+                [[ "$value" != "__lp_set_prompt" ]] && new_precmd_functions+=("$value")
+            done
+            precmd_functions=(${new_precmd_functions[@]+"${new_precmd_functions[@]}"})
+
+            # Now repeat for preexec (not precmd) functions
+            local -a new_preexec_functions=()
+            for value in ${preexec_functions[@]+"${preexec_functions[@]}"}; do
+                [[ "$value" != "__lp_runtime_before" ]] &&
+                [[ "$value" != "__lp_title_command" ]] && new_preexec_functions+=("$value")
+            done
+            preexec_functions=(${new_preexec_functions[@]+"${new_preexec_functions[@]}"})
+        else
+            PROMPT_COMMAND="${LP_OLD_PROMPT_COMMAND-}"
+            unset LP_OLD_PROMPT_COMMAND
+
+            # Disable the DEBUG trap used by the RUNTIME or TITLE_COMMAND features
+            if (( ${LP_ENABLE_RUNTIME-0} || ${LP_ENABLE_RUNTIME_BELL-0} || ${LP_ENABLE_TITLE_COMMAND-0} )); then
+                trap - DEBUG
+            fi
+        fi
+    else # zsh
+        # Disable previous hooks as options that set them
+        # may have changed
+        {
+            add-zsh-hook -d precmd  __lp_set_prompt
+            add-zsh-hook -d preexec __lp_runtime_before
+            add-zsh-hook -d preexec __lp_print_title_command
+        } >/dev/null
     fi
 }
 
 # Come back to the old prompt
 prompt_off() {
+    __lp_disable_hooks
+
     PS1=$LP_OLD_PS1
-    if (( _LP_SHELL_bash )); then
-        eval "$_LP_OLD_SHOPT"
-        PROMPT_COMMAND="$LP_OLD_PROMPT_COMMAND"
-    else # zsh
-        add-zsh-hook -d precmd "$_LP_ZSH_HOOK"
+
+    if (( _LP_SHELL_zsh )); then
         setopt "${_LP_OLD_SETOPT[@]}"
-        (( ${#_LP_ZSH_PROMPT_THEME} )) && prompt "$_LP_ZSH_PROMPT_THEME"
+
+        if [[ -n ${_LP_ZSH_PROMPT_THEME-} ]]; then
+            prompt "$_LP_ZSH_PROMPT_THEME"
+            unset _LP_ZSH_PROMPT_THEME
+        fi
     fi
 }
 
 # Use an empty prompt: just the \$ mark
 prompt_OFF() {
+    __lp_disable_hooks
+
     PS1="$_LP_MARK_SYMBOL "
-    if (( _LP_SHELL_bash )); then
-        shopt -u promptvars
-        PROMPT_COMMAND="$LP_OLD_PROMPT_COMMAND"
-    else # zsh
-        add-zsh-hook -d precmd "$_LP_ZSH_HOOK"
-        setopt promptpercent nopromptbang nopromptsubst
-    fi
 }
 
 lp_theme() {
