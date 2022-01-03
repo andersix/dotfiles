@@ -301,6 +301,8 @@ shopt -s histappend
 # Get Environment Modules {{{
 if [ -f /usr/share/Modules/init/bash ]; then
     . /usr/share/Modules/init/bash
+elif [ -f /usr/share/modules/init/bash ]; then
+    . /usr/share/modules/init/bash
 elif [ -f /etc/modules/init/bash ]; then
     . /etc/modules/init/bash
 elif [ -f /usr/local/opt/modules/init/bash ]; then  # macos, brew install modules
