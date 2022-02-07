@@ -1,14 +1,17 @@
-uenv:
+env:
 #  TERM: xterm-256color
   TERM: xterm-direct
+  COLORTERM: truecolor
 
 window:
   padding:
     x: 5
     y: 5
+  decorations: full
 
 scrolling:
-  histoy: 2000
+  history: 10000
+  auto_scroll: false
 
 font:
   normal:
@@ -32,10 +35,13 @@ font:
     x: 0
     y: 0
 
+draw_bold_text_with_bright_colors: true
+
 # Colors (One Dark - https://github.com/atom/atom/tree/master/packages/one-dark-syntax)
 colors:
   primary:
     background: '#282c34'
+    #background: '#000000'
     foreground: '#abb2bf'
   cursor:
     text:       CellBackground
@@ -44,7 +50,8 @@ colors:
     text:       CellForeground
     background: '#3e4451' # syntax-selection-color
   normal:
-    black:      '#5c6370' # mono-3
+    #black:      '#5c6370' # mono-3
+    black:      '#000000' # mono-3
     red:        '#e06c75' # red 1
     green:      '#98c379'
     yellow:     '#e5c07b' # orange 2
