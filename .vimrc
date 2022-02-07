@@ -58,11 +58,11 @@ if (empty($TMUX))
   " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
   if has('nvim') || has('termguicolors')
     set termguicolors
-"    colorscheme onedark
-    colorscheme challenger_deep
+    colorscheme onedark
+"    colorscheme challenger_deep
   else
-"    colorscheme jellybeans
-    colorscheme challenger_deep
+    colorscheme jellybeans
+"    colorscheme challenger_deep
   endif
 endif
 
@@ -302,6 +302,28 @@ set titleold=
 "    " set ttymouse=xterm2
 "endif
 
+"if &term =~ "^xterm\\|rxvt"
+"  " use an orange cursor in insert mode
+"  let &t_SI = "\<Esc>]12;orange\x7"
+"  " use a red cursor otherwise
+"  let &t_EI = "\<Esc>]12;red\x7"
+"  silent !echo -ne "\033]12;red\007"
+"  " reset cursor when vim exits
+"  autocmd VimLeave * silent !echo -ne "\033]112\007"
+"  " use \003]12;gray\007 for gnome-terminal and rxvt up to version 9.21
+"endif
+
+" Cursor
+" IBeam shape in insert mode, underline shape in replace mode and block shape in normal mode.
+let &t_SI = "\<Esc>[6 q"
+let &t_SR = "\<Esc>[4 q"
+let &t_EI = "\<Esc>[2 q"
+if has("mac")
+  let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+  let &t_SR = "\<Esc>]50;CursorShape=2\x7"
+  let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+endif
+
 " Enable folding
 set foldmethod=indent
 set foldlevel=99
@@ -322,7 +344,8 @@ if has("gui_running")
   if has("gui_gtk2") || has("gui_gtk3")
     set guifont=Fira\ Mono\ 12
   elseif has("gui_macvim")
-    set guifont=Menlo\ Regular:h14
+    "set guifont=Menlo\ Regular:h14
+    set guifont=Source\ Code\ Pro\ Regular:h14
   elseif has("gui_win32")
     set guifont=Consolas:h11:cANSI
   endif

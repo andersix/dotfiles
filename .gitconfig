@@ -1,6 +1,6 @@
 [user]
 	name = Anders Knudsen
-	email = abknudsen@firstpasseng.com
+	email = 
 [core]
         editor = vim
         excludesfile = ~/.gitignore_global

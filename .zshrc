@@ -75,14 +75,18 @@ alias hist="history"
 if [[ "$OSTYPE" == linux-gnu ]]; then
   #export TERM=xterm-256color
   export TERM=xterm-direct  # seems to work after installing "ncurses-term"
+  #export TERM=xterm
+  export COLORTERM=truecolor
   alias ls='ls -hF --color'       # add colors for filetype recognition
   alias lm='ls -al --color=none|less'  # pipe through 'less'
   alias lx='ls -lXB'              # sort by extension
+  alias time='/usr/bin/time -f "Program: %C\nTotal time: %E\nUser Mode (s) %U\nKernel Mode (s) %S\nCPU: %P"'
 fi
 
 # OSX specific config {{{
 if [[ "$OSTYPE" == darwin* ]]; then
   export TERM=xterm-256color
+  export COLORTERM=truecolor
   alias lm='ls -al |less'  # pipe through 'less'
   alias ls='ls -G'
   alias gvim='mvim'  # install mvim from macports
@@ -113,6 +117,7 @@ export LESS="-FX -R"
 # Syntax coloring with pygments in less, when opening source files
 # MacOS: brew install pygments
 #export LESSOPEN='|~/lessfilter.sh %s'
+#export LESSOPEN='|~/code/dotfiles/lessfilter.sh %s'
 export LESSOPEN='|pygmentize -O style=solarized-dark -g %s'
 
 function psg() {
