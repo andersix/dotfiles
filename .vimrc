@@ -14,6 +14,7 @@ if empty(glob('~/.vim-plugged'))
 endif
 " Note, a Plug with no URL assumes 'https://github.com/', and no '.git' at the end
 call plug#begin('~/.vim-plugged')
+Plug 'tmux-plugins/vim-tmux'
 Plug 'tpope/vim-fugitive'
 Plug 'vhda/verilog_systemverilog.vim'
 "Plug 'nachumk/systemverilog.vim'
@@ -33,6 +34,11 @@ Plug 'nanotech/jellybeans.vim'
 Plug 'altercation/vim-colors-solarized'
 Plug 'joshdick/onedark.vim'
 Plug 'challenger-deep-theme/vim', { 'as': 'challenger-deep' }
+Plug 'junegunn/limelight.vim'
+Plug 'godlygeek/tabular'
+Plug 'tpope/vim-markdown'
+Plug 'preservim/vim-pencil'
+Plug 'junegunn/goyo.vim'
 if has('mac')
   Plug 'junegunn/vim-xmark'
 endif
@@ -127,7 +133,7 @@ set guioptions=aegimt
 filetype on            " enables filetype detection
 
 " use 4 spaces instead of tabs
-"set wrap
+set nowrap
 "set wrapmargin=1
 set tabstop=4     " tabs are at proper location
 set expandtab     " don't use actual tab character (ctrl-v)

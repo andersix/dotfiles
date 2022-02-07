@@ -180,8 +180,6 @@ fi
 # OSX specific config {{{
 if [ $(uname) == "Darwin" ]; then
   export TERM=xterm-256color
-  #export PATH=/usr/local/bin:/usr/local/sbin:/usr/local/Cellar/python3/3.4.1/bin:$HOME/bin:$PATH
-  #export MANPATH=/opt/local/share/man:$MANPATH
 
   #aliases {{{
   alias ls='ls -G'
