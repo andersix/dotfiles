@@ -1,5 +1,4 @@
 set nocompatible
-set autoread
 set encoding=utf-8
 
 " vim-plug {{{
@@ -15,6 +14,7 @@ endif
 " Note, a Plug with no URL assumes 'https://github.com/', and no '.git' at the end
 call plug#begin('~/.vim-plugged')
 Plug 'tmux-plugins/vim-tmux'
+Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'tpope/vim-fugitive'
 Plug 'vhda/verilog_systemverilog.vim'
 "Plug 'nachumk/systemverilog.vim'
@@ -42,6 +42,10 @@ Plug 'junegunn/goyo.vim'
 if has('mac')
   Plug 'junegunn/vim-xmark'
 endif
+" Integrate fzf with Vim.
+"Plug '$XDG_DATA_HOME/fzf'
+Plug '$HOME/.local/share/fzf'
+Plug 'junegunn/fzf.vim'
 call plug#end()
 " }}}
 
@@ -57,14 +61,28 @@ if (empty($TMUX))
   "Based on Vim patch 7.4.1770 (`guicolors` option) < https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd >
   " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
   if has('nvim') || has('termguicolors')
+    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
     set termguicolors
     colorscheme onedark
 "    colorscheme challenger_deep
   else
-    colorscheme jellybeans
-"    colorscheme challenger_deep
+"    colorscheme jellybeans
+    colorscheme challenger_deep
   endif
 endif
+" my terminal is white on black
+"set background=dark
+"set background=light
+
+"let g:zenburn_high_Contrast=1
+"colors zenburn
+"let g:solarized_termcolors=256
+"colors solarized
+
+" set to on enables syntax highlighting.
+let python_highlight_all=1
+syntax on
 
 """ hl_matchit plugin {{{
 "" If this variable is set, augroup is defined, and start highlighting.
@@ -105,24 +123,6 @@ endif
 runtime macros/matchit.vim
 " }}}
 
-" set to on enables syntax highlighting.
-let python_highlight_all=1
-syntax on
-
-" my terminal is white on black
-"set background=dark
-"set background=light
-
-"let g:zenburn_high_Contrast=1
-"colors zenburn
-
-"let g:solarized_termcolors=256
-"colors solarized
-
-"highlight Comment ctermbg=blue
-"highlight Comment ctermfg=black
-"highlight Comment cterm=italic
-
 " Highlight redundant whitespaces and tabs.
 highlight RedundantSpaces ctermbg=red guibg=red
 match RedundantSpaces /\s\+$\| \+\ze\t\|\t/
@@ -132,18 +132,55 @@ set guioptions=aegimt
 
 filetype on            " enables filetype detection
 
-" use 4 spaces instead of tabs
+
+set autoindent
+set autoread
+set backspace=indent,eol,start  " more powerful backspacing
+set cindent                     " stricter rules for C programs. Note: smartindent (deprecated in favor of cindent)
+set colorcolumn=80
+set cursorline
+"set fileformats=unix            " always show ^M in DOS files
 set nowrap
 "set wrapmargin=1
-set tabstop=4     " tabs are at proper location
-set expandtab     " don't use actual tab character (ctrl-v)
+set ruler                        " always show line, col number, the current command, and line number
+"set ignorecase                   " caseinsensitive incremental search
+"set smartcase                    " override ignorecase if search pattern contains any uppercase chars
+set hlsearch
+set incsearch
+set nostartofline                " don't jump to first character when paging
+set paste                        " start in paste mode by default (cancel with [ESC]:nopaste)
+set autowrite                    " Automatically save before commands like :next and :make
+set viminfo='20,\"50             " read/write a .viminfo file, don't store more than 50 lines of registers
+set history=50                   " keep 50 lines of command line history
+set showcmd
+set tabstop=4
+set expandtab                    " don't use actual tab character (ctrl-v)
 set smarttab
-set shiftwidth=4  " indenting is 4 spaces
+set shiftwidth=4
 set softtabstop=4
-set autoindent    " turns it on
-set cindent       " stricter rules for C programs
-"set smartindent     " smart indent (deprecated in favor of cindent)
+set number
+set ttyfast
+set laststatus=2                 " show the satus line all the time
+set so=7                         " set 7 lines to the cursors - when moving vertical
+set wildmenu                     " enhanced command line completion
+set hidden                       " current buffer can be put into background
+set showcmd                      " show incomplete commands
+set showmatch                    " Show matching brackets
+set showmode
+set noshowmode                   " don't show which mode disabled for PowerLine
+set wildmode=list:longest        " complete files like a shell
+set scrolloff=3                  " lines of text around cursor
+set shell=$SHELL
+set cmdheight=1                  " command bar height
+set title                        " set terminal title
+set titleold=
+set virtualedit=block            " when in block mode, can position cursor where there is no text
+" Suffixes that get lower priority when doing tab completion for filenames.
+" These are files we are not likely to want to edit or read.
+set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc
+
 filetype indent on
+
 if !has('mac')
   set diffopt+=iwhite " ignore whitespace for vimdiff
 endif
@@ -160,42 +197,11 @@ function DiffW()
      \ v:fname_in . " " . v:fname_new .  " > " . v:fname_out
 endfunction
 
-
-" more powerful backspacing
-set backspace=indent,eol,start
-
-" always show ^M in DOS files
-"set fileformats=unix
-
-" Suffixes that get lower priority when doing tab completion for filenames.
-" These are files we are not likely to want to edit or read.
-set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc
+"let mapleader=" "
+"let maplocalleader=" "
 
 " Make p in Visual mode replace the selected text with the "" register.
 vnoremap p <Esc>:let current_reg = @"<CR>gvdi<C-R>=current_reg<CR><Esc>
-
-" caseinsensitive incremental search
-"set ignorecase
-set hlsearch
-set incsearch
-
-set nostartofline   " don't jump to first character when paging
-
-" Show matching brackets
-set showmatch
-
-" start in paste mode by default (cancel with [ESC]:nopaste)
-set paste
-
-" always show line and col number and the current command, and line number
-set ruler
-set showcmd
-
-set autowrite      " Automatically save before commands like :next and :make
-
-set viminfo='20,\"50    " read/write a .viminfo file, don't store more than
-            " 50 lines of registers
-set history=50      " keep 50 lines of command line history
 
 
 if has("autocmd")
@@ -218,6 +224,10 @@ if has("autocmd")
  autocmd BufRead,BufNewFile *.lef,*.LEF         set filetype=lef
  autocmd BufRead,BufNewFile *.def               set filetype=def
  autocmd BufRead,BufNewFile *.cdl               set filetype=spice
+ " Make sure .aliases, .bash_aliases and similar files get syntax highlighting.
+ autocmd BufNewFile,BufRead .*aliases* set ft=sh
+ " Ensure tabs don't get converted to spaces in Makefiles.
+ autocmd FileType make setlocal noexpandtab
 endif " has ("autocmd")
 
 " function to cleanup a text -> mapped to F5
@@ -237,7 +247,9 @@ map <F5> :call CleanText()<CR>
 " (From Zdenek Sekera [zs@sgi.com]  on the vim list.)
 " I added the final <cr> to restore the standard behaviour of
 " <cr> to go to the next line
-:nnoremap <CR> :nohlsearch<CR>/<BS><CR>
+":nnoremap <CR> :nohlsearch<CR>/<BS><CR>
+" Clear search highlights.
+map <Leader><Space> :let @/=''<CR>
 
 "split navigations
 nnoremap <C-J> <C-W><C-J>
@@ -270,22 +282,9 @@ endtry
 " highlight conflicts
 match ErrorMsg '^\(<\|=\|>\)\{7\}\([^=].\+\)\?$'
 
+" Auto-resize splits when Vim gets resized.
+autocmd VimResized * wincmd =
 
-" Use :set nonumber to remove, or comment out
-set number
-set ttyfast
-set laststatus=2            " show the satus line all the time
-set so=7                    " set 7 lines to the cursors - when moving vertical
-set wildmenu                " enhanced command line completion
-set hidden                  " current buffer can be put into background
-set showcmd                 " show incomplete commands
-set noshowmode              " don't show which mode disabled for PowerLine
-set wildmode=list:longest   " complete files like a shell
-set scrolloff=3             " lines of text around cursor
-set shell=$SHELL
-set cmdheight=1             " command bar height
-set title                   " set terminal title
-set titleold=
 
 " syntastic settings
 " set statusline+=%#warningmsg#
@@ -315,6 +314,17 @@ set titleold=
 
 " Cursor
 " IBeam shape in insert mode, underline shape in replace mode and block shape in normal mode.
+" Using iTerm2? Go-to preferences / profile / colors and disable the smart bar
+" cursor color. Then pick a cursor and highlight color that matches your theme.
+" That will ensure your cursor is always visible within insert mode.
+" Reference chart of values:
+"   Ps = 0  -> blinking block.
+"   Ps = 1  -> blinking block (default).
+"   Ps = 2  -> steady block.
+"   Ps = 3  -> blinking underline.
+"   Ps = 4  -> steady underline.
+"   Ps = 5  -> blinking bar (xterm).
+"   Ps = 6  -> steady bar (xterm).
 let &t_SI = "\<Esc>[6 q"
 let &t_SR = "\<Esc>[4 q"
 let &t_EI = "\<Esc>[2 q"
@@ -340,9 +350,79 @@ au BufNewFile,BufRead *.py:
     \ set autoindent
     \ set fileformat=unix
 
+" Only show the cursor line in the active buffer.
+augroup CursorLine
+    au!
+    au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+    au WinLeave * setlocal nocursorline
+augroup END
+
+" Add all TODO items to the quickfix list relative to where you opened Vim.
+function! s:todo() abort
+  let entries = []
+  for cmd in ['git grep -niIw -e TODO -e FIXME 2> /dev/null',
+            \ 'grep -rniIw -e TODO -e FIXME . 2> /dev/null']
+    let lines = split(system(cmd), '\n')
+    if v:shell_error != 0 | continue | endif
+    for line in lines
+      let [fname, lno, text] = matchlist(line, '^\([^:]*\):\([^:]*\):\(.*\)')[1:3]
+      call add(entries, { 'filename': fname, 'lnum': lno, 'text': text })
+    endfor
+    break
+  endfor
+  if !empty(entries)
+    call setqflist(entries)
+    copen
+  endif
+endfunction
+command! Todo call s:todo()
+
+" .............................................................................
+" junegunn/fzf.vim settings
+" .............................................................................
+
+let $FZF_DEFAULT_OPTS = '--bind ctrl-a:select-all'
+
+" Customize fzf colors to match your color scheme.
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-b': 'split',
+  \ 'ctrl-v': 'vsplit',
+  \ 'ctrl-y': {lines -> setreg('*', join(lines, "\n"))}}
+
+" Launch fzf with CTRL+P.
+nnoremap <silent> <C-p> :FZF -m<CR>
+
+" Map a few common things to do with FZF.
+nnoremap <silent> <Leader><Enter> :Buffers<CR>
+nnoremap <silent> <Leader>l :Lines<CR>
+
+" Allow passing optional flags into the Rg command.
+"   Example: :Rg myterm -g '*.md'
+command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \ "rg --column --line-number --no-heading --color=always --smart-case " .
+  \ <q-args>, 1, fzf#vim#with_preview(), <bang>0)
+" .............................................................................
+
+" gvim fonts
 if has("gui_running")
   if has("gui_gtk2") || has("gui_gtk3")
-    set guifont=Fira\ Mono\ 12
+    set guifont=Fira\ Code\ weight=450\ 11
   elseif has("gui_macvim")
     "set guifont=Menlo\ Regular:h14
     set guifont=Source\ Code\ Pro\ Regular:h14

@@ -15,7 +15,7 @@ MiscTabCloseButtons=TRUE
 MiscTabCloseMiddleClick=TRUE
 MiscTabPosition=GTK_POS_TOP
 MiscHighlightUrls=TRUE
-FontName=Source Code Pro 11
+FontName=Fira Code weight=450 11
 DropdownStatusIcon=FALSE
 BackgroundDarkness=1.000000
 MiscBellUrgent=FALSE
