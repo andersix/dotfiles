@@ -137,7 +137,7 @@ set autoindent
 set autoread
 set backspace=indent,eol,start  " more powerful backspacing
 set cindent                     " stricter rules for C programs. Note: smartindent (deprecated in favor of cindent)
-set colorcolumn=80
+#set colorcolumn=80              " put a marker on column number given
 set cursorline
 "set fileformats=unix            " always show ^M in DOS files
 set nowrap
@@ -247,9 +247,9 @@ map <F5> :call CleanText()<CR>
 " (From Zdenek Sekera [zs@sgi.com]  on the vim list.)
 " I added the final <cr> to restore the standard behaviour of
 " <cr> to go to the next line
-":nnoremap <CR> :nohlsearch<CR>/<BS><CR>
-" Clear search highlights.
-map <Leader><Space> :let @/=''<CR>
+:nnoremap <CR> :nohlsearch<CR>/<BS><CR>
+" Clear search highlights using Leader key followed by space:
+"map <Leader><Space> :let @/=''<CR>
 
 "split navigations
 nnoremap <C-J> <C-W><C-J>
