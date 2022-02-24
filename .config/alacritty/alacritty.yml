@@ -1,5 +1,5 @@
 env:
-#  TERM: xterm-256color
+  #  TERM: xterm-256color
   TERM: xterm-direct
   COLORTERM: truecolor
 
@@ -8,6 +8,7 @@ window:
     x: 5
     y: 5
   decorations: full
+  dynamic_title: true
 
 scrolling:
   history: 10000
@@ -29,7 +30,7 @@ font:
   bold_italic:
     family: Source Code Pro
     style: Bold Italic
-  
+
   size: 10
   offset:
     x: 0
@@ -39,23 +40,32 @@ draw_bold_text_with_bright_colors: true
 
 # Colors (One Dark - https://github.com/atom/atom/tree/master/packages/one-dark-syntax)
 colors:
+  # Default colors
   primary:
     background: '#282c34'
-    #background: '#000000'
     foreground: '#abb2bf'
-  cursor:
-    text:       CellBackground
-    cursor:     '#528bff' # syntax-cursor-color
-  selection:
-    text:       CellForeground
-    background: '#3e4451' # syntax-selection-color
+
+  # Normal colors
   normal:
-    #black:      '#5c6370' # mono-3
-    black:      '#000000' # mono-3
-    red:        '#e06c75' # red 1
-    green:      '#98c379'
-    yellow:     '#e5c07b' # orange 2
-    blue:       '#61afef'
-    magenta:    '#c678dd'
-    cyan:       '#56b6c2'
-    white:      '#828997' # mono-2
+    # NOTE: Use '#131613' for the `black` color if you'd like to see
+    # black text on the background.
+    black: '#282c34'
+    red: '#e06c75'
+    green: '#98c379'
+    yellow: '#d19a66'
+    blue: '#61afef'
+    magenta: '#c678dd'
+    cyan: '#56b6c2'
+    white: '#abb2bf'
+
+  # Bright colors
+  bright:
+    black: '#5c6370'
+    red: '#e06c75'
+    green: '#98c379'
+    yellow: '#d19a66'
+    blue: '#61afef'
+    magenta: '#c678dd'
+    cyan: '#56b6c2'
+    white: '#ffffff'
+theme: One-Dark

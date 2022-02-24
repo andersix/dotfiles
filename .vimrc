@@ -30,10 +30,6 @@ Plug 'itchyny/lightline.vim'
 Plug 'preservim/nerdtree'
 Plug 'tmhedberg/SimpylFold'
 Plug 'Konfekt/FastFold'
-Plug 'nanotech/jellybeans.vim'
-Plug 'altercation/vim-colors-solarized'
-Plug 'joshdick/onedark.vim'
-Plug 'challenger-deep-theme/vim', { 'as': 'challenger-deep' }
 Plug 'junegunn/limelight.vim'
 Plug 'godlygeek/tabular'
 Plug 'tpope/vim-markdown'
@@ -46,9 +42,18 @@ endif
 "Plug '$XDG_DATA_HOME/fzf'
 Plug '$HOME/.local/share/fzf'
 Plug 'junegunn/fzf.vim'
+" color themes:
+Plug 'challenger-deep-theme/vim', { 'as': 'challenger-deep' }
+Plug 'morhetz/gruvbox'
+Plug 'nanotech/jellybeans.vim'
+Plug 'joshdick/onedark.vim'
+Plug 'NLKNguyen/papercolor-theme'
+Plug 'altercation/vim-colors-solarized'
 call plug#end()
 " }}}
 
+set background=dark
+"set background=light
 "Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
 "If you're using tmux version 2.2 or later, you can remove the outermost $TMUX check and use tmux's 24-bit color support
 "(see < http://sunaku.github.io/tmux-24bit-color.html#usage > for more information.)
@@ -64,21 +69,25 @@ if (empty($TMUX))
     let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
     let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
     set termguicolors
-    colorscheme onedark
 "    colorscheme challenger_deep
-  else
+"    colorscheme gruvbox
 "    colorscheme jellybeans
-    colorscheme challenger_deep
+    let g:onedark_terminal_italics = 1
+    if (has("autocmd") && !has("gui_running"))
+      augroup colors
+        autocmd!
+        let s:background = { "gui": "#161822", "cterm": "235", "cterm16": "0" }
+        autocmd ColorScheme * call onedark#set_highlight("Normal", { "bg": s:background }) "No `fg` setting
+      augroup END
+    endif
+    colorscheme onedark
+"    colorscheme PaperColor
+"    colorscheme solarized
+  else
+    colorscheme jellybeans
+"    colorscheme challenger_deep
   endif
 endif
-" my terminal is white on black
-"set background=dark
-"set background=light
-
-"let g:zenburn_high_Contrast=1
-"colors zenburn
-"let g:solarized_termcolors=256
-"colors solarized
 
 " set to on enables syntax highlighting.
 let python_highlight_all=1
@@ -137,7 +146,7 @@ set autoindent
 set autoread
 set backspace=indent,eol,start  " more powerful backspacing
 set cindent                     " stricter rules for C programs. Note: smartindent (deprecated in favor of cindent)
-#set colorcolumn=80              " put a marker on column number given
+"set colorcolumn=80              " put a marker on column number given
 set cursorline
 "set fileformats=unix            " always show ^M in DOS files
 set nowrap
@@ -420,6 +429,8 @@ command! -bang -nargs=* Rg
 " .............................................................................
 
 " gvim fonts
+" - put font files, ttf, otf, etc., in .local/share/fonts/
+" - Then run 'fc-cache -f -v' on the command line
 if has("gui_running")
   if has("gui_gtk2") || has("gui_gtk3")
     set guifont=Fira\ Code\ weight=450\ 11
