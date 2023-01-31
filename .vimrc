@@ -49,6 +49,7 @@ Plug 'nanotech/jellybeans.vim'
 Plug 'joshdick/onedark.vim'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'altercation/vim-colors-solarized'
+Plug 'dracula/vim', { 'as': 'dracula' }
 call plug#end()
 " }}}
 
@@ -80,6 +81,7 @@ if (empty($TMUX))
         autocmd ColorScheme * call onedark#set_highlight("Normal", { "bg": s:background }) "No `fg` setting
       augroup END
     endif
+"    colorscheme dracula
     colorscheme onedark
 "    colorscheme PaperColor
 "    colorscheme solarized
