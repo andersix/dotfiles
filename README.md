@@ -5,7 +5,7 @@ My dotfiles. This is my $HOME, and I'm constantly redecorating... (ymmv)
 ```sh
 git init --bare $HOME/.dotfiles
 alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-dotfiles remote add origin git@github.com:andersix/dotfiles.git
+dotfiles remote add origin/master git@github.com:andersix/dotfiles.git
 
 Add "dotfiles" alias above to your shell aliases for future use.
 ```
@@ -25,7 +25,7 @@ rm --recursive dotfiles-tmp
 ## Configuration
 ```sh
 dotfiles config status.showUntrackedFiles no
-dotfiles remote set-url origin git@github.com:andersix/dotfiles.git
+dotfiles remote set-url origin/master git@github.com:andersix/dotfiles.git
 ```
 
 ## Usage
