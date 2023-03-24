@@ -100,8 +100,8 @@ alias hist="history"
 
 # Linux specific config {{{
 if [[ "$OSTYPE" == linux-gnu ]]; then
-  #export TERM=xterm-256color
-  export TERM=xterm-direct  # seems to work after installing "ncurses-term"
+  export TERM=xterm-256color
+  #export TERM=xterm-direct  # seems to work after installing "ncurses-term"
   #export TERM=xterm
   export COLORTERM=truecolor
   alias ls='ls -hF --color'       # add colors for filetype recognition
@@ -226,4 +226,5 @@ fi
 if [[ -e ~/.zsh.d/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
 	source ~/.zsh.d/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
+
 

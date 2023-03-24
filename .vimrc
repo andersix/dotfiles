@@ -35,6 +35,8 @@ Plug 'godlygeek/tabular'
 Plug 'tpope/vim-markdown'
 Plug 'preservim/vim-pencil'
 Plug 'junegunn/goyo.vim'
+Plug 'elzr/vim-json'
+Plug 'tpope/vim-commentary'
 if has('mac')
   Plug 'junegunn/vim-xmark'
 endif
@@ -163,7 +165,6 @@ set paste                        " start in paste mode by default (cancel with [
 set autowrite                    " Automatically save before commands like :next and :make
 set viminfo='20,\"50             " read/write a .viminfo file, don't store more than 50 lines of registers
 set history=50                   " keep 50 lines of command line history
-set showcmd
 set tabstop=4
 set expandtab                    " don't use actual tab character (ctrl-v)
 set smarttab
@@ -387,6 +388,19 @@ function! s:todo() abort
   endif
 endfunction
 command! Todo call s:todo()
+
+"======================================================
+"put an entry with the date/time
+"======================================================
+command! -nargs=* Entry call s:RunEntry()
+function! s:RunEntry()
+  let s:tm = "\n---" . strftime("%d/%m/%y %H:%M:%S") . "----------------------\n"
+  execute "normal! i" . s:tm
+  " enter insert mode because it's time  to write stuff   now.
+  call feedkeys("i")
+endfunction
+
+
 
 " .............................................................................
 " junegunn/fzf.vim settings

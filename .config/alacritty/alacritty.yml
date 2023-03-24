@@ -1,6 +1,6 @@
 env:
-  #  TERM: xterm-256color
-  TERM: xterm-direct
+  TERM: xterm-256color
+  #TERM: xterm-direct
   COLORTERM: truecolor
 
 window:
@@ -9,6 +9,7 @@ window:
     y: 5
   decorations: full
   dynamic_title: true
+  dynamic_padding: false
 
 scrolling:
   history: 10000
@@ -37,6 +38,9 @@ font:
     y: 0
 
 draw_bold_text_with_bright_colors: true
+
+mouse_bindings:
+  - { mouse: Middle, action: PasteSelection }
 
 # Colors (One Dark - https://github.com/atom/atom/tree/master/packages/one-dark-syntax)
 colors:
