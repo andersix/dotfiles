@@ -170,7 +170,8 @@ set expandtab                    " don't use actual tab character (ctrl-v)
 set smarttab
 set shiftwidth=4
 set softtabstop=4
-set number
+"set number
+"set relativenumber
 set ttyfast
 set laststatus=2                 " show the satus line all the time
 set so=7                         " set 7 lines to the cursors - when moving vertical
@@ -190,6 +191,15 @@ set virtualedit=block            " when in block mode, can position cursor where
 " Suffixes that get lower priority when doing tab completion for filenames.
 " These are files we are not likely to want to edit or read.
 set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc
+
+" Show relative line numbers in normal mode, absolute line numbers for insert mode
+set number
+augroup numbertoggle
+  autocmd!
+  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu && mode() != "i" | set rnu   | endif
+  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu                  | set nornu | endif
+augroup END
+
 
 filetype indent on
 
@@ -253,6 +263,56 @@ fun CleanText()
     call cursor(curline, curcol)
 endfun
 map <F5> :call CleanText()<CR>
+
+
+" Cursor color variables
+hi bCursor guibg=#3498db
+hi gCursor guibg=#2ecc71
+hi pCursor guibg=#9240ea
+hi rCursor guibg=#e74c3c
+hi wCursor guibg=#e0e0e0
+hi yCursor guibg=#ffe100
+
+
+" Mode-specific cursor blinking/colors/shapes
+
+" Clear any defaults
+set guicursor=
+:autocmd OptionSet guicursor noautocmd set guicursor=
+
+" Shape
+" Block        : cr n r sm v ve
+" Underline    : c o
+" Vertical bar : ci i
+
+" Blinking
+" Off : c n
+" On  : ci cr i n o r sm v ve
+
+" Color
+" Blue   : o
+" Green  : c ci
+" Purple : i
+" Red    : v ve
+" Yellow : cr n r sm
+
+set guicursor+=c:blinkoff0-blinkon0-blinkwait0-hor20-gCursor
+set guicursor+=ci:blinkoff500-blinkon500-blinkwait10-ver25-gCursor
+set guicursor+=cr:blinkoff500-blinkon500-blinkwait10-block-yCursor
+set guicursor+=i:blinkoff500-blinkon500-blinkwait10-ver25-pCursor
+set guicursor+=n:blinkoff0-blinkon0-blinkwait0-block-yCursor
+set guicursor+=o:blinkoff500-blinkon500-blinkwait10-hor20-bCursor
+set guicursor+=r:blinkoff500-blinkon500-blinkwait10-block-yCursor
+set guicursor+=sm:blinkoff500-blinkon500-blinkwait10-block-yCursor
+set guicursor+=v:blinkoff500-blinkon500-blinkwait10-block-rCursor
+set guicursor+=ve:blinkoff500-blinkon500-blinkwait10-block-rCursor
+
+" Restore normal cursor style when exiting (in this case, underline)
+augroup fix_cursor
+	au VimLeave * set guicursor=a:hor20-yCursor-blinkoff500-blinkon500-blinkwait10
+augroup END
+
+
 
 " Clears search highlighting by just hitting a return.
 " The <BS> clears the command line.
@@ -448,13 +508,14 @@ command! -bang -nargs=* Rg
 " - put font files, ttf, otf, etc., in .local/share/fonts/
 " - Then run 'fc-cache -f -v' on the command line
 if has("gui_running")
-  if has("gui_gtk2") || has("gui_gtk3")
-    set guifont=Fira\ Code\ weight=450\ 11
-  elseif has("gui_macvim")
-    "set guifont=Menlo\ Regular:h14
-    set guifont=Source\ Code\ Pro\ Regular:h14
-  elseif has("gui_win32")
-    set guifont=Consolas:h11:cANSI
-  endif
+    if has("gui_gtk2") || has("gui_gtk3")
+        set guifont=Fira\ Code\ weight=450\ 11
+    elseif has("gui_macvim")
+        "set guifont=Menlo\ Regular:h14
+        set guifont=Source\ Code\ Pro\ Regular:h14
+    elseif has("gui_win32")
+        set guifont=Consolas:h11:cANSI
+    endif
 endif
 
+" vim: set filetype=vim ts=2 sts=2 sw=2 tw=0 noet :
