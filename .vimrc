@@ -75,7 +75,7 @@ if (empty($TMUX))
 "    colorscheme challenger_deep
 "    colorscheme gruvbox
 "    colorscheme jellybeans
-    let g:onedark_terminal_italics = 1
+    let g:onedark_terminal_italics = 0
     if (has("autocmd") && !has("gui_running"))
       augroup colors
         autocmd!
@@ -512,10 +512,15 @@ if has("gui_running")
         set guifont=Fira\ Code\ weight=450\ 11
     elseif has("gui_macvim")
         "set guifont=Menlo\ Regular:h14
-        set guifont=Source\ Code\ Pro\ Regular:h14
+        set guifont=SourceCodePro-Regular:h12
+        "set guifont=Source\ Code\ Pro\ Regular:h14
     elseif has("gui_win32")
         set guifont=Consolas:h11:cANSI
     endif
 endif
+
+let &t_ZH="\e[3m"
+let &t_ZR="\e[23m"
+highlight Comment cterm=italic gui=italic
 
 " vim: set filetype=vim ts=2 sts=2 sw=2 tw=0 noet :
