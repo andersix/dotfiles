@@ -26,6 +26,26 @@
 #
 #
 
+# OSX Homebrew config (https://brew.sh/)
+# {{{
+if [[ "$OSTYPE" == darwin* ]]; then
+  export HOMEBREW_PREFIX="/opt/homebrew";
+  export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+  export HOMEBREW_REPOSITORY="/opt/homebrew";
+  export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
+  export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
+  export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
+  export HOMEBREW_NO_ANALYTICS=1
+  if type brew &>/dev/null
+  then
+    FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+  
+    autoload -Uz compinit
+    compinit
+  fi
+fi
+# }}}
+
 # Enable colors and change prompt:
 autoload -U colors && colors
 
@@ -207,6 +227,21 @@ echo "lr : recursive ls"
 echo "lt : sort by date"
 echo "lm : pipe through 'less'"
 echo "md : mkdir, cd"
+}
+
+# Do ripgrep then puts fuzzy searching in the resulting files+text on top while showing context:
+function frg {
+    result=$(rg --ignore-case --color=always --line-number --no-heading "$@" |
+      fzf --ansi \
+          --color 'hl:-1:underline,hl+:-1:underline:reverse' \
+          --delimiter ':' \
+          --preview "bat --color=always {1} --theme='Solarized (light)' --highlight-line {2}" \
+          --preview-window 'up,60%,border-bottom,+{2}+3/3,~3')
+    file=${result%%:*}
+    linenumber=$(echo "${result}" | cut -d: -f2)
+    if [[ -n "$file" ]]; then
+            $EDITOR +"${linenumber}" "$file"
+    fi
 }
 
 # Oh my zsh, is not for me. I use liquidprompt...
