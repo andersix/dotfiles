@@ -102,9 +102,9 @@ unset HISTFILESIZE
 ## add the full date and time to lines
 #HISTTIMEFORMAT='%F %T '
 #set history size
-export HISTSIZE=100000
+export HISTSIZE=2147483647
 #save history after logout
-export SAVEHIST=100000
+export SAVEHIST=$HISTSIZE
 #history file
 export HISTFILE=~/.zhistory
 #append into history file
