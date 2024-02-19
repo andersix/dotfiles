@@ -124,9 +124,28 @@ if [[ "$OSTYPE" == linux-gnu ]]; then
   #export TERM=xterm-direct  # seems to work after installing "ncurses-term"
   #export TERM=xterm
   export COLORTERM=truecolor
-  alias ls='ls -hF --color'       # add colors for filetype recognition
-  alias lm='ls -al --color=none|less'  # pipe through 'less'
-  alias lx='ls -lXB'              # sort by extension
+  #alias ls='ls -hF --color'       # add colors for filetype recognition
+  #alias lm='ls -al --color=none|less'  # pipe through 'less'
+  #alias lx='ls -lXB'              # sort by extension
+
+#  # Changing "ls" to "exa"
+#  if [[ -e /usr/bin/exa ]]; then
+#	# exa hack to make it behave like "ls" with -t
+#	function ls() {
+#	    if [ "$1" = "-ltr" ]; then
+#	        exa -lsnew "${@:2}"
+#	    elif [ "$1" = "-lrt" ]; then
+#	        exa -lsnew "${@:2}"
+#	    else
+#	        exa "$@"
+#	    fi
+#	}
+#    #alias ls='exa -a --color=always --group-directories-first' # my preferred listing
+#    alias ll='exa -la --color=always --group-directories-first'  # long format
+#    #alias lt='exa -aT --color=always --group-directories-first' # tree listing
+#    alias l.='exa -a | egrep "^\."'
+#  fi
+ 
   alias time='/usr/bin/time -f "Program: %C\nTotal time: %E\nUser Mode (s) %U\nKernel Mode (s) %S\nCPU: %P"'
 fi
 
@@ -244,14 +263,24 @@ function frg {
     fi
 }
 
-# Oh my zsh, is not for me. I use liquidprompt...
-# Use liquidprompt only if in an interactive shell
-if [[ $- == *i* ]]; then
-    # Super nice prompt
-    if [[ -e ~/.liquidpromptrc ]]; then
-        source ~/.liquidpromptrc
-    fi
-    source ~/.liquidprompt
+#
+# Oh my zsh, is not for me...
+#
+if [[ $- == *i* ]]; then  # Use only if in an interactive shell
+    # Prefer to use "spaceship prompt":
+    #   https://github.com/spaceship-prompt/spaceship-prompt.git
+    if [[ -e ~/.zsh.d/spaceship/spaceship.zsh ]]; then
+        source ~/.zsh.d/spaceship/spaceship.zsh
+        ## Add a custom vi-mode section to the prompt
+        ## See: https://github.com/spaceship-prompt/spaceship-vi-mode
+        #source ~/.zsh.d/spaceship-vi-mode/spaceship-vi-mode.plugin.zsh
+        #spaceship add --before char vi_mode
+    elif
+        # Else liquidprompt...
+        if [[ -e ~/.liquidpromptrc ]]; then
+            source ~/.liquidpromptrc
+        fi
+        source ~/.liquidprompt
 fi
 
 # The following package provides syntax highlighting zsh.

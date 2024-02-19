@@ -17,19 +17,23 @@ scrolling:
 
 font:
   normal:
-    family: Source Code Pro
+    #family: Source Code Pro
+    family: FiraCode Nerd Font
     style: Regular
 
   bold:
-    family: Source Code Pro
+    #family: Source Code Pro
+    family: FiraCode Nerd Font
     style: Bold
 
   italic:
-    family: Source Code Pro
+    #family: Source Code Pro
+    family: FiraCode Nerd Font
     style: Italic
 
   bold_italic:
-    family: Source Code Pro
+    #family: Source Code Pro
+    family: FiraCode Nerd Font
     style: Bold Italic
 
   size: 10

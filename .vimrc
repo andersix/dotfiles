@@ -156,8 +156,8 @@ set cursorline
 set nowrap
 "set wrapmargin=1
 set ruler                        " always show line, col number, the current command, and line number
-"set ignorecase                   " caseinsensitive incremental search
-"set smartcase                    " override ignorecase if search pattern contains any uppercase chars
+set ignorecase                   " caseinsensitive incremental search
+set smartcase                    " override ignorecase if search pattern contains any uppercase chars
 set hlsearch
 set incsearch
 set nostartofline                " don't jump to first character when paging

@@ -8,6 +8,8 @@ alias rm='rm -i'
 # confirmation #
 alias mv='mv -i'
 alias cp='cp -i'
+alias free='free -m'
+
 alias genpass="openssl rand -base64 20"
 
 alias nowdate='date +"%Y-%m-%d"'
@@ -29,4 +31,17 @@ alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 #
 alias notes='vim ~/notes/notes-$(date +'%Y%m%d').md'
 
+# get error messages from journalctl
+alias jctl="journalctl -p 3 -xb"
+
+# gpg encryption
+# verify signature for isos
+alias gpg-check="gpg2 --keyserver-options auto-key-retrieve --verify"
+# receive the key of a developer
+alias gpg-retrieve="gpg2 --keyserver-options auto-key-retrieve --receive-keys"
+
+alias yt-best="yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best' "
+
+# the terminal rickroll
+alias rr='curl -s -L https://raw.githubusercontent.com/keroserene/rickrollrc/master/roll.sh | bash'
 
