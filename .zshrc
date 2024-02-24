@@ -124,9 +124,9 @@ if [[ "$OSTYPE" == linux-gnu ]]; then
   #export TERM=xterm-direct  # seems to work after installing "ncurses-term"
   #export TERM=xterm
   export COLORTERM=truecolor
-  #alias ls='ls -hF --color'       # add colors for filetype recognition
-  #alias lm='ls -al --color=none|less'  # pipe through 'less'
-  #alias lx='ls -lXB'              # sort by extension
+  alias ls='ls -hF --color'       # add colors for filetype recognition
+  alias lm='ls -al --color=none|less'  # pipe through 'less'
+  alias lx='ls -lXB'              # sort by extension
 
 #  # Changing "ls" to "exa"
 #  if [[ -e /usr/bin/exa ]]; then
@@ -269,8 +269,8 @@ function frg {
 if [[ $- == *i* ]]; then  # Use only if in an interactive shell
     # Prefer to use "spaceship prompt":
     #   https://github.com/spaceship-prompt/spaceship-prompt.git
-    if [[ -e ~/.zsh.d/spaceship/spaceship.zsh ]]; then
-        source ~/.zsh.d/spaceship/spaceship.zsh
+    if [[ -e ~/.zsh.d/spaceship-prompt/spaceship.zsh ]]; then
+        source ~/.zsh.d/spaceship-prompt/spaceship.zsh
         ## Add a custom vi-mode section to the prompt
         ## See: https://github.com/spaceship-prompt/spaceship-vi-mode
         #source ~/.zsh.d/spaceship-vi-mode/spaceship-vi-mode.plugin.zsh
