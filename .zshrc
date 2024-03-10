@@ -39,7 +39,7 @@ if [[ "$OSTYPE" == darwin* ]]; then
   if type brew &>/dev/null
   then
     FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-  
+
     autoload -Uz compinit
     compinit
   fi
@@ -130,22 +130,22 @@ if [[ "$OSTYPE" == linux-gnu ]]; then
 
 #  # Changing "ls" to "exa"
 #  if [[ -e /usr/bin/exa ]]; then
-#	# exa hack to make it behave like "ls" with -t
-#	function ls() {
-#	    if [ "$1" = "-ltr" ]; then
-#	        exa -lsnew "${@:2}"
-#	    elif [ "$1" = "-lrt" ]; then
-#	        exa -lsnew "${@:2}"
-#	    else
-#	        exa "$@"
-#	    fi
-#	}
+#   # exa hack to make it behave like "ls" with -t
+#   function ls() {
+#       if [ "$1" = "-ltr" ]; then
+#           exa -lsnew "${@:2}"
+#       elif [ "$1" = "-lrt" ]; then
+#           exa -lsnew "${@:2}"
+#       else
+#           exa "$@"
+#       fi
+#   }
 #    #alias ls='exa -a --color=always --group-directories-first' # my preferred listing
 #    alias ll='exa -la --color=always --group-directories-first'  # long format
 #    #alias lt='exa -aT --color=always --group-directories-first' # tree listing
 #    alias l.='exa -a | egrep "^\."'
 #  fi
- 
+
   alias time='/usr/bin/time -f "Program: %C\nTotal time: %E\nUser Mode (s) %U\nKernel Mode (s) %S\nCPU: %P"'
 fi
 
@@ -283,12 +283,19 @@ if [[ $- == *i* ]]; then  # Use only if in an interactive shell
         source ~/.liquidprompt
 fi
 
+
+# Suggests commands as you type based on history and completions.
+# https://github.com/zsh-users/zsh-autosuggestions
+if [[ -e .zsh.d/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    source .zsh.d/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
+
 # The following package provides syntax highlighting zsh.
 # get from:
 # git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
 # MUST be sourced last in zshrc
 if [[ -e ~/.zsh.d/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
-	source ~/.zsh.d/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    source ~/.zsh.d/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
 
 
