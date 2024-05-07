@@ -2,9 +2,11 @@
 Welcome to my $HOME.
 I use Linux (various flavors, mostly Arch, Debian, and RHEL variants), and MacOS, so my dotfiles are built to accomodate both systems as best as possible. I've mostly migrated to ZSH on my personal machines, however, I maintain BASH since that's where I started, and what my work RHEL systems use.
 
-These dotfiles use an "aliased" command to git---``dotfiles``---to manage the, well, dotfiles.
+These dotfiles are stored in a Git bare repository here and managed using an "aliased" command to git---``dotfiles``.
 If you want to start from scratch with none of my dotfiles, and just use the aliased command, modify and use the [First-time Setup](#First-time-Setup) section, and then add/commit your dotfiles with the ``dotfiles`` command.
 If you're setting up a new machine, intending to use the same dotfiles, use the [Replication](#Replication) section.
+
+"No extra tooling, no symlinks, files are tracked on a version control system, you can use different branches for different computers, you can replicate you configuration easily on new installation." [1](#References)
 
 (ymmv)
 
@@ -70,3 +72,5 @@ dotfiles rebase
 # fix any conflicts, then push
 dotfiles push
 ```
+## References
+1: User StreakyCobra on HN [posted this solution](https://news.ycombinator.com/item?id=11070797#11071754) and I adopted it here to maintain my own dotfiles. Its elegance, only relying on Git and no other tooling, is why it stuck for me.
