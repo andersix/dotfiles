@@ -44,7 +44,13 @@ dotfiles remote set-url origin/master git@github.com:andersix/dotfiles.git
 Then add dependencies for the shell used on the new machine.
 #### If in bash:
 ```sh
+# get Liquidprompt:
 git clone https://github.com/liquidprompt/liquidprompt
+# link to dotfile in home:
+cd ~
+ln -s liquidprompt/liquidprompt .liquidprompt
+# optionally, get Environment Modules (using package install method in your distro):
+sudo apt install environment-modules
 ```
 #### If in zsh:
 ```sh
