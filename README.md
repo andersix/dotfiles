@@ -37,7 +37,7 @@ rm --recursive dotfiles-tmp
 Then setup some git config for your dotfiles repo
 ```sh
 dotfiles config status.showUntrackedFiles no
-dotfiles remote set-url origin/master git@github.com:andersix/dotfiles.git
+dotfiles remote set-url origin git@github.com:andersix/dotfiles.git
 ```
 
 ## Dependencies
@@ -59,6 +59,14 @@ mkdir .zsh.d
 cd .zsh.d
 git clone https://github.com/spaceship-prompt/spaceship-prompt.git
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
+```
+### VIM
+My primary editor is vim, so these dotfiles contain vim specific things. (no harm in keeping them if you don't use vim.)
+Post install, vim will try to load plugins I use. Simply use pluginstall to get them the first time using vim after installing dotfiles:
+```sh
+vim
+# then inside vim use the colon command:
+:PlugInstall
 ```
 
 ## Usage
