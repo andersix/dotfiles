@@ -1,0 +1,569 @@
+" ============================================================================
+" Synopsys Tools Integration
+" ============================================================================
+" This file contains commands to launch and interact with Synopsys tools
+" It is loaded by the ASIC module when needed
+" ============================================================================
+"
+" Functions in the module:
+"
+" Running Synopsys tools directly from vim:
+"   VCS (simulation) - :VCSRun
+"   Design Compiler (synthesis) - :DCRun
+"   Formality (formal verification) - :FormalityRun
+"   IC Compiler (place & route) - :ICCRun
+"   PrimeTime (timing analysis) - :PTRun
+"   Verdi (debug) - :VerdiRun
+"   VC CDC (clock domain crossing) - :CDCRun
+"   HSPICE (circuit simulation) - :HSPICERun
+
+" Generating template scripts:
+"   PDK setup scripts - :GenPDKSetup
+"   Design Compiler TCL scripts - :GenDCScript
+"   PrimeTime TCL scripts - :GenPTScript
+"   IC Compiler TCL scripts - :GenICCScript
+"   VCS simulation scripts - :GenVCSScript
+"   VC CDC analysis scripts - :GenVCCDCScript
+"   HSPICE simulation scripts - :GenHSPICEScript
+"   Liberty library constraints - :GenLiberty
+
+"
+" ============================================================================
+"
+" Simulation control commands for Synopsys VCS
+function! RunVCSSimulation()
+    let rtl_file = expand('%:p')
+    let tb_file = expand('%:p:r') . '_tb.sv'
+    
+    if filereadable(tb_file)
+        echo "Running Synopsys VCS simulation for " . rtl_file . " with testbench " . tb_file
+        let cmd = 'xterm -e "cd ' . expand('%:p:h') . ' && vcs -sverilog -debug_all ' . rtl_file . ' ' . tb_file . ' && ./simv -gui &"'
+        call system(cmd)
+    else
+        echo "Testbench file not found: " . tb_file
+    endif
+endfunction
+command! VCSRun call RunVCSSimulation()
+
+" Run Design Compiler
+function! RunDC()
+    let design_file = expand('%:p')
+    let dc_script = input("Enter DC script (default: run_dc.tcl): ")
+    if dc_script == ''
+        let dc_script = "run_dc.tcl"
+    endif
+    
+    echo "Running Synopsys Design Compiler for " . design_file
+    let cmd = 'xterm -e "cd ' . expand('%:p:h') . ' && dc_shell-t -f ' . dc_script . ' &"'
+    call system(cmd)
+endfunction
+command! DCRun call RunDC()
+
+" Run Formality
+function! RunFormality()
+    let rtl_file = expand('%:p')
+    let fm_script = input("Enter Formality script (default: verify.tcl): ")
+    if fm_script == ''
+        let fm_script = "verify.tcl"
+    endif
+    
+    echo "Running Synopsys Formality for " . rtl_file
+    let cmd = 'xterm -e "cd ' . expand('%:p:h') . ' && fm_shell -f ' . fm_script . ' &"'
+    call system(cmd)
+endfunction
+command! FormalityRun call RunFormality()
+
+" Run IC Compiler
+function! RunICC()
+    let design_file = expand('%:p')
+    let icc_script = input("Enter ICC script (default: place_route.tcl): ")
+    if icc_script == ''
+        let icc_script = "place_route.tcl"
+    endif
+    
+    echo "Running Synopsys IC Compiler for " . design_file
+    let cmd = 'xterm -e "cd ' . expand('%:p:h') . ' && icc_shell -f ' . icc_script . ' &"'
+    call system(cmd)
+endfunction
+command! ICCRun call RunICC()
+
+" Run PrimeTime
+function! RunPT()
+    let design_file = expand('%:p')
+    let pt_script = input("Enter PrimeTime script (default: timing.tcl): ")
+    if pt_script == ''
+        let pt_script = "timing.tcl"
+    endif
+    
+    echo "Running Synopsys PrimeTime for " . design_file
+    let cmd = 'xterm -e "cd ' . expand('%:p:h') . ' && pt_shell -f ' . pt_script . ' &"'
+    call system(cmd)
+endfunction
+command! PTRun call RunPT()
+
+" Run Verdi
+function! RunVerdi()
+    let rtl_file = expand('%:p')
+    
+    echo "Running Synopsys Verdi for " . rtl_file
+    let cmd = 'xterm -e "cd ' . expand('%:p:h') . ' && verdi -sv ' . rtl_file . ' &"'
+    call system(cmd)
+endfunction
+command! VerdiRun call RunVerdi()
+
+" Run VC CDC
+function! RunVCCDC()
+    let design_file = expand('%:p')
+    let cdc_script = input("Enter CDC script (default: cdc_check.tcl): ")
+    if cdc_script == ''
+        let cdc_script = "cdc_check.tcl"
+    endif
+    
+    echo "Running Synopsys VC CDC for " . design_file
+    let cmd = 'xterm -e "cd ' . expand('%:p:h') . ' && vc_cdc -f ' . cdc_script . ' &"'
+    call system(cmd)
+endfunction
+command! CDCRun call RunVCCDC()
+
+" Run Synopsys HSPICE
+function! RunHSPICE()
+    let spice_file = expand('%:p')
+    
+    echo "Running Synopsys HSPICE for " . spice_file
+    let cmd = 'xterm -e "cd ' . expand('%:p:h') . ' && hspice ' . spice_file . ' &"'
+    call system(cmd)
+endfunction
+command! HSPICERun call RunHSPICE()
+
+" Generate PDK setup script
+function! GeneratePDKSetup()
+    let pdk_name = input("Enter PDK name (default: saed32): ")
+    if pdk_name == ''
+        let pdk_name = "saed32"
+    endif
+    
+    let template = []
+    call add(template, "# Setup script for " . pdk_name . " PDK")
+    call add(template, "# Generated by Vim on " . strftime("%Y-%m-%d"))
+    call add(template, "")
+    call add(template, "# Environment variables")
+    call add(template, "setenv PDK_DIR /path/to/" . pdk_name)
+    call add(template, "setenv PDK_TECH_FILE ${PDK_DIR}/tech/techfile")
+    call add(template, "setenv PDK_TECH_LEF ${PDK_DIR}/tech/lef/tech.lef")
+    call add(template, "setenv PDK_CELL_LEF ${PDK_DIR}/tech/lef/cells.lef")
+    call add(template, "setenv PDK_QRC_TECH ${PDK_DIR}/tech/qrc/qrcTechFile")
+    call add(template, "setenv PDK_TLU_P_FILE ${PDK_DIR}/tech/tluplus/max.tluplus")
+    call add(template, "setenv PDK_TLU_M_FILE ${PDK_DIR}/tech/tluplus/min.tluplus")
+    call add(template, "setenv PDK_MAP_FILE ${PDK_DIR}/tech/tluplus/tech2itf.map")
+    call add(template, "")
+    call add(template, "# Standard cell libraries")
+    call add(template, "setenv PDK_SC_DB ${PDK_DIR}/lib/db")
+    call add(template, "setenv PDK_SC_LEF ${PDK_DIR}/lib/lef")
+    call add(template, "setenv PDK_SC_LIB ${PDK_DIR}/lib/lib")
+    call add(template, "")
+    call add(template, "# Additional paths")
+    call add(template, "setenv PATH ${PATH}:${PDK_DIR}/bin")
+    call add(template, "")
+    call add(template, "# Tool setup")
+    call add(template, "# Design Compiler")
+    call add(template, "setenv SYNOPSYS_DC_CONFIG ${PDK_DIR}/synopsys_dc.setup")
+    call add(template, "")
+    call add(template, "# IC Compiler")
+    call add(template, "setenv SYNOPSYS_ICC_CONFIG ${PDK_DIR}/synopsys_icc.setup")
+    call add(template, "")
+    call add(template, "# PrimeTime")
+    call add(template, "setenv SYNOPSYS_PT_CONFIG ${PDK_DIR}/synopsys_pt.setup")
+    call add(template, "")
+    call add(template, "echo \"PDK setup completed for " . pdk_name . "\"")
+    
+    " Insert into buffer
+    call append(line('.'), template)
+endfunction
+command! GenPDKSetup call GeneratePDKSetup()
+
+" Generate Design Compiler TCL script
+function! GenerateDCScript()
+    let design_name = expand('%:t:r')
+    
+    let template = []
+    call add(template, "# Design Compiler TCL script for " . design_name)
+    call add(template, "# Generated by Vim on " . strftime("%Y-%m-%d"))
+    call add(template, "")
+    call add(template, "# Set design name")
+    call add(template, "set DESIGN " . design_name)
+    call add(template, "")
+    call add(template, "# Set top module")
+    call add(template, "set TOP_MODULE " . design_name)
+    call add(template, "")
+    call add(template, "# Set libraries")
+    call add(template, "set LIB_PATH \"$env(PDK_SC_DB)\"")
+    call add(template, "set LIB_NAME \"target_library.db\"")
+    call add(template, "")
+    call add(template, "# Setup libraries")
+    call add(template, "set target_library \"$LIB_PATH/$LIB_NAME\"")
+    call add(template, "set link_library \"* $target_library\"")
+    call add(template, "")
+    call add(template, "# Read design")
+    call add(template, "analyze -format sverilog " . design_name . ".sv")
+    call add(template, "elaborate $TOP_MODULE")
+    call add(template, "")
+    call add(template, "# Set constraints")
+    call add(template, "create_clock [get_ports clk] -name MAIN_CLOCK -period 10")
+    call add(template, "set_max_area 0")
+    call add(template, "set_max_fanout 20 [current_design]")
+    call add(template, "set_max_transition 1 [current_design]")
+    call add(template, "")
+    call add(template, "# Compile")
+    call add(template, "compile_ultra")
+    call add(template, "")
+    call add(template, "# Reports")
+    call add(template, "report_timing > timing.rpt")
+    call add(template, "report_area > area.rpt")
+    call add(template, "report_power > power.rpt")
+    call add(template, "check_design > design_check.rpt")
+    call add(template, "")
+    call add(template, "# Save results")
+    call add(template, "write -format verilog -hierarchy -output " . design_name . "_netlist.v")
+    call add(template, "write -format ddc -hierarchy -output " . design_name . ".ddc")
+    call add(template, "write_sdf " . design_name . ".sdf")
+    call add(template, "write_sdc " . design_name . ".sdc")
+    call add(template, "")
+    call add(template, "exit")
+    
+    " Insert into buffer
+    call append(line('.'), template)
+endfunction
+command! GenDCScript call GenerateDCScript()
+
+" Generate PrimeTime TCL script
+function! GeneratePTScript()
+    let design_name = expand('%:t:r')
+    
+    let template = []
+    call add(template, "# PrimeTime TCL script for " . design_name)
+    call add(template, "# Generated by Vim on " . strftime("%Y-%m-%d"))
+    call add(template, "")
+    call add(template, "# Set design name")
+    call add(template, "set DESIGN " . design_name)
+    call add(template, "")
+    call add(template, "# Set top module")
+    call add(template, "set TOP_MODULE " . design_name)
+    call add(template, "")
+    call add(template, "# Set libraries")
+    call add(template, "set LIB_PATH \"$env(PDK_SC_LIB)\"")
+    call add(template, "set LIB_NAME \"target_library.db\"")
+    call add(template, "")
+    call add(template, "# Setup libraries")
+    call add(template, "set target_library \"$LIB_PATH/$LIB_NAME\"")
+    call add(template, "set link_library \"* $target_library\"")
+    call add(template, "")
+    call add(template, "# Read design")
+    call add(template, "read_verilog " . design_name . "_netlist.v")
+    call add(template, "current_design $TOP_MODULE")
+    call add(template, "link")
+    call add(template, "")
+    call add(template, "# Read constraints")
+    call add(template, "read_sdc " . design_name . ".sdc")
+    call add(template, "")
+    call add(template, "# Set analysis mode")
+    call add(template, "set_app_var si_enable_analysis true")
+    call add(template, "read_parasitics -format SPEF " . design_name . ".spef")
+    call add(template, "")
+    call add(template, "# Update timing")
+    call add(template, "update_timing -full")
+    call add(template, "")
+    call add(template, "# Check timing")
+    call add(template, "check_timing")
+    call add(template, "")
+    call add(template, "# Reports")
+    call add(template, "report_timing -delay max -nworst 10 -input_pins -nets -transition_time -nosplit > timing_max.rpt")
+    call add(template, "report_timing -delay min -nworst 10 -input_pins -nets -transition_time -nosplit > timing_min.rpt")
+    call add(template, "report_constraint -all_violators -nosplit > constraints.rpt")
+    call add(template, "report_analysis_coverage > coverage.rpt")
+    call add(template, "")
+    call add(template, "exit")
+    
+    " Insert into buffer
+    call append(line('.'), template)
+endfunction
+command! GenPTScript call GeneratePTScript()
+
+" Generate ICC TCL script
+function! GenerateICCScript()
+    let design_name = expand('%:t:r')
+    
+    let template = []
+    call add(template, "# IC Compiler TCL script for " . design_name)
+    call add(template, "# Generated by Vim on " . strftime("%Y-%m-%d"))
+    call add(template, "")
+    call add(template, "# Set design name")
+    call add(template, "set DESIGN " . design_name)
+    call add(template, "")
+    call add(template, "# Set top module")
+    call add(template, "set TOP_MODULE " . design_name)
+    call add(template, "")
+    call add(template, "# Set libraries")
+    call add(template, "set LIB_PATH \"$env(PDK_SC_DB)\"")
+    call add(template, "set LIB_NAME \"target_library.db\"")
+    call add(template, "")
+    call add(template, "# Setup libraries")
+    call add(template, "set target_library \"$LIB_PATH/$LIB_NAME\"")
+    call add(template, "set link_library \"* $target_library\"")
+    call add(template, "")
+    call add(template, "# Setup technology files")
+    call add(template, "set tech_file \"$env(PDK_TECH_FILE)\"")
+    call add(template, "set tech_lef \"$env(PDK_TECH_LEF)\"")
+    call add(template, "set cell_lef \"$env(PDK_CELL_LEF)\"")
+    call add(template, "")
+    call add(template, "# Setup TLU+ files")
+    call add(template, "set tluplus_max \"$env(PDK_TLU_P_FILE)\"")
+    call add(template, "set tluplus_min \"$env(PDK_TLU_M_FILE)\"")
+    call add(template, "set tech2itf \"$env(PDK_MAP_FILE)\"")
+    call add(template, "")
+    call add(template, "# Read design")
+    call add(template, "read_ddc " . design_name . ".ddc")
+    call add(template, "")
+    call add(template, "# Initialize floorplan")
+    call add(template, "initialize_floorplan \\")
+    call add(template, "  -control_type width_and_height \\")
+    call add(template, "  -core_width 1000 \\")
+    call add(template, "  -core_height 1000 \\")
+    call add(template, "  -left_io2core 10 \\")
+    call add(template, "  -bottom_io2core 10 \\")
+    call add(template, "  -right_io2core 10 \\")
+    call add(template, "  -top_io2core 10")
+    call add(template, "")
+    call add(template, "# Power planning")
+    call add(template, "create_rectangular_rings -nets {VDD VSS} -left_offset 1 -right_offset 1 -top_offset 1 -bottom_offset 1")
+    call add(template, "")
+    call add(template, "# Placement")
+    call add(template, "place_opt")
+    call add(template, "")
+    call add(template, "# Clock tree synthesis")
+    call add(template, "clock_opt")
+    call add(template, "")
+    call add(template, "# Routing")
+    call add(template, "route_opt")
+    call add(template, "")
+    call add(template, "# Add filler cells")
+    call add(template, "insert_stdcell_filler -cell_without_metal \"FILL_CELL\"")
+    call add(template, "")
+    call add(template, "# Extract RC")
+    call add(template, "extract_rc")
+    call add(template, "")
+    call add(template, "# Final timing verification")
+    call add(template, "report_timing > timing_final.rpt")
+    call add(template, "")
+    call add(template, "# Save results")
+    call add(template, "write_verilog -output " . design_name . "_pr.v")
+    call add(template, "write_sdf " . design_name . "_pr.sdf")
+    call add(template, "save_mw_cel -as " . design_name . "_final")
+    call add(template, "")
+    call add(template, "exit")
+    
+    " Insert into buffer
+    call append(line('.'), template)
+endfunction
+command! GenICCScript call GenerateICCScript()
+
+" Generate VCS testbench script
+function! GenerateVCSScript()
+    let design_name = expand('%:t:r')
+    
+    let template = []
+    call add(template, "#!/bin/bash")
+    call add(template, "# VCS simulation script for " . design_name)
+    call add(template, "# Generated by Vim on " . strftime("%Y-%m-%d"))
+    call add(template, "")
+    call add(template, "# Set design name")
+    call add(template, "DESIGN=" . design_name)
+    call add(template, "")
+    call add(template, "# RTL files")
+    call add(template, "RTL_FILES=\"${DESIGN}.sv ${DESIGN}_tb.sv\"")
+    call add(template, "")
+    call add(template, "# UVM libraries")
+    call add(template, "UVM_HOME=\"$VCS_HOME/etc/uvm\"")
+    call add(template, "")
+    call add(template, "# Compile")
+    call add(template, "vcs -full64 \\")
+    call add(template, "    -sverilog \\")
+    call add(template, "    -debug_access+all \\")
+    call add(template, "    -timescale=1ns/1ps \\")
+    call add(template, "    -ntb_opts uvm \\")
+    call add(template, "    -l compile.log \\")
+    call add(template, "    ${RTL_FILES}")
+    call add(template, "")
+    call add(template, "# Simulate")
+    call add(template, "./simv -l sim.log -gui &")
+    
+    " Insert into buffer
+    call append(line('.'), template)
+endfunction
+command! GenVCSScript call GenerateVCSScript()
+
+" Generate VC CDC script
+function! GenerateVCCDCScript()
+    let design_name = expand('%:t:r')
+    
+    let template = []
+    call add(template, "# VC CDC TCL script for " . design_name)
+    call add(template, "# Generated by Vim on " . strftime("%Y-%m-%d"))
+    call add(template, "")
+    call add(template, "# Set design name")
+    call add(template, "set DESIGN " . design_name)
+    call add(template, "")
+    call add(template, "# Read design")
+    call add(template, "read_file -format sverilog " . design_name . ".sv")
+    call add(template, "")
+    call add(template, "# Set top module")
+    call add(template, "set_top " . design_name)
+    call add(template, "")
+    call add(template, "# Define clocks")
+    call add(template, "define_clock -domain D1 [find / -name \"clk1\"]")
+    call add(template, "define_clock -domain D2 [find / -name \"clk2\"]")
+    call add(template, "")
+    call add(template, "# Define reset")
+    call add(template, "define_reset [find / -name \"reset\"] -negative")
+    call add(template, "")
+    call add(template, "# Configure analysis")
+    call add(template, "configure_analysis -sync existence -sync structure")
+    call add(template, "")
+    call add(template, "# Run CDC analysis")
+    call add(template, "analyze_cdc")
+    call add(template, "")
+    call add(template, "# Generate reports")
+    call add(template, "report_sync -all > sync_report.rpt")
+    call add(template, "report_policy -all > policy_report.rpt")
+    call add(template, "report_clock_domain -detail > clock_domains.rpt")
+    call add(template, "report_reset -all > reset_report.rpt")
+    call add(template, "report_analysis_coverage > coverage.rpt")
+    call add(template, "")
+    call add(template, "exit")
+    
+    " Insert into buffer
+    call append(line('.'), template)
+endfunction
+command! GenVCCDCScript call GenerateVCCDCScript()
+
+" Generate HSPICE netlist script
+function! GenerateHSPICEScript()
+    let circuit_name = expand('%:t:r')
+    
+    let template = []
+    call add(template, "* HSPICE netlist for " . circuit_name)
+    call add(template, "* Generated by Vim on " . strftime("%Y-%m-%d"))
+    call add(template, "")
+    call add(template, ".TITLE " . circuit_name)
+    call add(template, "")
+    call add(template, "* Include PDK models")
+    call add(template, ".INCLUDE \"$PDK_DIR/models/hspice/models.sp\"")
+    call add(template, "")
+    call add(template, "* Supply voltage")
+    call add(template, "VDD VDD 0 1.2V")
+    call add(template, "VSS VSS 0 0V")
+    call add(template, "")
+    call add(template, "* Circuit netlist")
+    call add(template, "* [Add your circuit here]")
+    call add(template, "")
+    call add(template, "* Stimulus")
+    call add(template, "VIN IN 0 PULSE(0 1.2 0ns 0.1ns 0.1ns 5ns 10ns)")
+    call add(template, "")
+    call add(template, "* Analysis commands")
+    call add(template, ".TRAN 1ps 20ns")
+    call add(template, ".OPTION POST=2")
+    call add(template, ".OPTION ACCURATE")
+    call add(template, ".OPTION CAPTAB")
+    call add(template, "")
+    call add(template, "* Output")
+    call add(template, ".PROBE V(*) I(*)")
+    call add(template, ".MEASURE TRAN trise TRIG V(IN) VAL=0.1 RISE=1 TARG V(OUT) VAL=1.1 RISE=1")
+    call add(template, ".MEASURE TRAN tfall TRIG V(IN) VAL=1.1 FALL=1 TARG V(OUT) VAL=0.1 FALL=1")
+    call add(template, ".MEASURE TRAN tpd PARAM='(trise+tfall)/2'")
+    call add(template, "")
+    call add(template, ".END")
+    
+    " Insert into buffer
+    call append(line('.'), template)
+endfunction
+command! GenHSPICEScript call GenerateHSPICEScript()
+
+" Generate typical Liberty lib constraints
+function! GenerateLibertyConstraints()
+    let lib_name = expand('%:t:r')
+    
+    let template = []
+    call add(template, "/* Liberty library constraints for " . lib_name . " */")
+    call add(template, "/* Generated by Vim on " . strftime("%Y-%m-%d") . " */")
+    call add(template, "")
+    call add(template, "library (" . lib_name . ") {")
+    call add(template, "  comment : \"Standard cell library\";")
+    call add(template, "  delay_model : table_lookup;")
+    call add(template, "  ")
+    call add(template, "  /* Unit definitions */")
+    call add(template, "  time_unit : \"1ns\";")
+    call add(template, "  voltage_unit : \"1V\";")
+    call add(template, "  current_unit : \"1mA\";")
+    call add(template, "  pulling_resistance_unit : \"1kohm\";")
+    call add(template, "  leakage_power_unit : \"1nW\";")
+    call add(template, "  capacitive_load_unit(1, pf);")
+    call add(template, "  ")
+    call add(template, "  /* Operating conditions */")
+    call add(template, "  operating_conditions(typical) {")
+    call add(template, "    process : 1.0;")
+    call add(template, "    temperature : 25.0;")
+    call add(template, "    voltage : 1.2;")
+    call add(template, "    tree_type : balanced_tree;")
+    call add(template, "  }")
+    call add(template, "  ")
+    call add(template, "  /* Wire load model */")
+    call add(template, "  wire_load(\"default\") {")
+    call add(template, "    resistance : 0.001;")
+    call add(template, "    capacitance : 0.0001;")
+    call add(template, "    area : 0.0;")
+    call add(template, "  }")
+    call add(template, "  ")
+    call add(template, "  /* Default attributes */")
+    call add(template, "  default_fanout_load : 1.0;")
+    call add(template, "  default_inout_pin_cap : 0.01;")
+    call add(template, "  default_input_pin_cap : 0.01;")
+    call add(template, "  default_output_pin_cap : 0.0;")
+    call add(template, "  default_max_transition : 1.0;")
+    call add(template, "  default_cell_leakage_power : 0.0;")
+    call add(template, "  ")
+    call add(template, "  /* Define cells here */")
+    call add(template, "  /* Example: */")
+    call add(template, "  cell(INV) {")
+    call add(template, "    area : 1.0;")
+    call add(template, "    pin(A) {")
+    call add(template, "      direction : input;")
+    call add(template, "      capacitance : 0.01;")
+    call add(template, "    }")
+    call add(template, "    pin(Y) {")
+    call add(template, "      direction : output;")
+    call add(template, "      function : \"!A\";")
+    call add(template, "      timing() {")
+    call add(template, "        related_pin : \"A\";")
+    call add(template, "        timing_sense : negative_unate;")
+    call add(template, "        cell_rise(scalar) {")
+    call add(template, "          values(\"0.1\");")
+    call add(template, "        }")
+    call add(template, "        cell_fall(scalar) {")
+    call add(template, "          values(\"0.1\");")
+    call add(template, "        }")
+    call add(template, "        rise_transition(scalar) {")
+    call add(template, "          values(\"0.1\");")
+    call add(template, "        }")
+    call add(template, "        fall_transition(scalar) {")
+    call add(template, "          values(\"0.1\");")
+    call add(template, "        }")
+    call add(template, "      }")
+    call add(template, "    }")
+    call add(template, "  }")
+    call add(template, "  ")
+    call add(template, "}")
+    
+    " Insert into buffer
+    call append(line('.'), template)
+endfunction
+command! GenLiberty call GenerateLibertyConstraints()
+
