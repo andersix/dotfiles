@@ -14,3 +14,8 @@ LP_ENABLE_RUNTIME=0
 LP_ENABLE_TEMP=0
 # Always enable colors if accessed via SSH
 LP_ENABLE_SSH_COLORS=1
+# Don't show loaded modules in prompt
+LP_ENABLE_MODULES=0
+LP_ENABLE_MODULES_VERSION=0
+# Don't show shell level
+LP_ENABLE_SHLVL=0
