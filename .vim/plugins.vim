@@ -52,7 +52,7 @@ Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'  " LSP source for asyncomplete
 
 " Code Navigation
-Plug 'ludovicchabant/vim-gutentags'  " Automatic tag management
+"Plug 'ludovicchabant/vim-gutentags'  " Automatic tag management
 Plug 'liuchengxu/vista.vim'  " Tag viewer for various languages
 
 " UI enhancements
@@ -87,4 +87,5 @@ Plug 'joshdick/onedark.vim'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'altercation/vim-colors-solarized'
 Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 call plug#end()

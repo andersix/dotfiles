@@ -82,6 +82,7 @@ if (empty($TMUX))
     set termguicolors
     let g:onedark_terminal_italics = 0
     colorscheme onedark
+    "colorscheme catppuccin_mocha
   else
     colorscheme jellybeans
   endif
@@ -152,34 +153,34 @@ augroup file_types
     " Verilog/SystemVerilog
     autocmd BufRead,BufNewFile *.v,*.vh,*.sv,*.svi,*.svh set filetype=verilog_systemverilog
     autocmd BufRead,BufNewFile *.v,*.vh,*.sv,*.svi,*.svh set expandtab tabstop=4 softtabstop=2 shiftwidth=2
-    
+
     " Liberty .lib files
     autocmd BufRead,BufNewFile *.lib set filetype=verilog_systemverilog
-    
+
     " TCL
     autocmd BufRead,BufNewFile *.do,*.tcl set filetype=tcl
-    
+
     " DFT stuff in STIL syntax
     autocmd BufRead,BufNewFile *.spf,*.stil,*.ctl set filetype=verilog
-    
+
     " LEF/DEF
     autocmd BufRead,BufNewFile *.lef,*.LEF so ~/.vim/syntax/lef.vim
     autocmd BufRead,BufNewFile *.def so ~/.vim/syntax/def.vim
     autocmd BufRead,BufNewFile *.lef,*.LEF set filetype=lef
     autocmd BufRead,BufNewFile *.def set filetype=def
-    
+
     " SPICE
     autocmd BufRead,BufNewFile *.cdl,*.sp,*.spice set filetype=spice
-    
+
     " Shell aliases files
     autocmd BufNewFile,BufRead .*aliases* set ft=sh
-    
+
     " Makefiles (keep tabs)
     autocmd FileType make setlocal noexpandtab
-    
+
     " Python PEP8 style
     autocmd BufNewFile,BufRead *.py set tabstop=4 softtabstop=4 shiftwidth=4 textwidth=79 expandtab autoindent fileformat=unix
-    
+
     " C/C++ style
     autocmd FileType c,cpp set tabstop=2 softtabstop=2 shiftwidth=2 expandtab
 augroup END
@@ -299,7 +300,7 @@ endfunction
 " GUI options - remove scrollbars and toolbar
 if has('gui_running')
   set guioptions=aegimt
-  
+
   " Set GUI font based on OS
   if has("gui_gtk2") || has("gui_gtk3")
     set guifont=Fira\ Code\ weight=450\ 11

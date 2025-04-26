@@ -1,0 +1,96 @@
+# ~/.shell_prompt_choice
+
+# Set manually to "starship" or "liquidprompt", or ??? when added, to override autodetect.
+# Leave empty ("") to auto-detect.
+CHOOSE_PROMPT_FORCE=""
+
+# Set to 1 to enable debug output
+CHOOSE_PROMPT_DEBUG=0
+
+
+choose_prompt() {
+    [ "$CHOOSE_PROMPT_DEBUG" -eq 1 ] && echo "[choose_prompt] Checking prompt..."
+
+    # Detect the shell
+    local shell_name
+    if [ -n "$ZSH_VERSION" ]; then
+        shell_name="zsh"
+    elif [ -n "$BASH_VERSION" ]; then
+        shell_name="bash"
+    else
+        shell_name="sh"
+    fi
+
+    # Determine platform and starship binary
+    case "$(uname)" in
+        Darwin)
+            STARSHIP_BIN="/opt/homebrew/bin/starship"
+            ;;
+        *)
+            STARSHIP_BIN="$(command -v starship)"
+            ;;
+    esac
+
+    local prompt_choice
+
+    if [ -n "$CHOOSE_PROMPT_FORCE" ]; then
+        prompt_choice="$CHOOSE_PROMPT_FORCE"
+        [ "$CHOOSE_PROMPT_DEBUG" -eq 1 ] && echo "[choose_prompt] Forced prompt choice: $prompt_choice"
+    elif [[ -x "$STARSHIP_BIN" ]]; then
+        prompt_choice="starship"
+        [ "$CHOOSE_PROMPT_DEBUG" -eq 1 ] && echo "[choose_prompt] Detected starship at $STARSHIP_BIN"
+    else
+        prompt_choice="liquidprompt"
+        [ "$CHOOSE_PROMPT_DEBUG" -eq 1 ] && echo "[choose_prompt] Falling back to liquidprompt"
+    fi
+
+    case "$prompt_choice" in
+        starship)
+            eval "$("$STARSHIP_BIN" init "$shell_name")"
+            export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
+            ;;
+        liquidprompt)
+            [[ -f ~/.liquidpromptrc ]] && source ~/.liquidpromptrc
+            [[ -f ~/.liquidprompt ]] && source ~/.liquidprompt
+            ;;
+    esac
+
+    disable_choose_prompt_hook
+}
+
+choose_prompt_once() {
+    choose_prompt
+}
+
+enable_choose_prompt_hook() {
+    if [ -n "$ZSH_VERSION" ]; then
+        if typeset -p precmd_functions &>/dev/null; then
+            precmd_functions+=(choose_prompt_once)
+        else
+            precmd_functions=(choose_prompt_once)
+        fi
+        [ "$CHOOSE_PROMPT_DEBUG" -eq 1 ] && echo "[choose_prompt] Hooked into precmd_functions for zsh"
+    elif [ -n "$BASH_VERSION" ]; then
+        PROMPT_COMMAND="choose_prompt_once; $PROMPT_COMMAND"
+        [ "$CHOOSE_PROMPT_DEBUG" -eq 1 ] && echo "[choose_prompt] Hooked into PROMPT_COMMAND for bash"
+    fi
+}
+
+disable_choose_prompt_hook() {
+    if [ -n "$ZSH_VERSION" ]; then
+        if typeset -p precmd_functions &>/dev/null; then
+            precmd_functions=("${precmd_functions[@]/choose_prompt_once}")
+        fi
+        [ "$CHOOSE_PROMPT_DEBUG" -eq 1 ] && echo "[choose_prompt] Unhooked from precmd_functions (zsh)"
+    elif [ -n "$BASH_VERSION" ]; then
+        PROMPT_COMMAND="${PROMPT_COMMAND/choose_prompt_once; /}"
+        [ "$CHOOSE_PROMPT_DEBUG" -eq 1 ] && echo "[choose_prompt] Unhooked from PROMPT_COMMAND (bash)"
+    fi
+}
+
+# Only set up the hook if in an interactive shell
+if [[ $- == *i* ]]; then
+    enable_choose_prompt_hook
+fi
+
+

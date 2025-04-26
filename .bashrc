@@ -8,6 +8,8 @@ export HISTCONTROL=ignoredups:ignorespace
 export PAGER=less
 shopt -s checkwinsize
 shopt -s progcomp
+#make sure the history is updated at every command
+shopt -s histappend
 
 #!! sets vi mode for shell
 set -o vi
@@ -293,26 +295,6 @@ gpip(){
 }
 
 
-# Liquid Prompt {{{
-LP_ENABLE_SVN=0
-LP_ENABLE_FOSSIL=0
-LP_ENABLE_BZR=0
-LP_ENABLE_BATT=0
-LP_ENABLE_LOAD=0
-LP_ENABLE_PROXY=0
-LP_USER_ALWAYS=1
-LP_HOSTNAME_ALWAYS=0
-LP_ENABLE_RUNTIME=0
-LP_ENABLE_TIME=0
-LP_ENABLE_PERM=0
-LP_ENABLE_TITLE=1
-[[ $- = *i* ]] && source ~/.liquidprompt
-#make sure the history is updated at every command
-shopt -s histappend
-#PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
-# }}}
-
-
 # Get Environment Modules {{{
 if [ -f /usr/share/Modules/init/bash ]; then
     . /usr/share/Modules/init/bash
@@ -323,7 +305,7 @@ elif [ -f /etc/modules/init/bash ]; then
 elif [ -f /usr/local/opt/modules/init/bash ]; then  # macos, brew install modules
     . /usr/local/opt/modules/init/bash
 else
-    echo "Environment modules not found"
+    echo "[INFO] Environment modules not found"
 fi
 # }}}
 
@@ -331,4 +313,26 @@ fi
 # Set my home bin in PATH, I like it first {{{
 export PATH=$HOME/bin:$PATH
 # }}}
+
+
+## Liquid Prompt {{{
+# TODO: move LP options into liquidpromptrc
+#LP_ENABLE_SVN=0
+#LP_ENABLE_FOSSIL=0
+#LP_ENABLE_BZR=0
+#LP_ENABLE_BATT=0
+#LP_ENABLE_LOAD=0
+#LP_ENABLE_PROXY=0
+#LP_USER_ALWAYS=1
+#LP_HOSTNAME_ALWAYS=0
+#LP_ENABLE_RUNTIME=0
+#LP_ENABLE_TIME=0
+#LP_ENABLE_PERM=0
+#LP_ENABLE_TITLE=1
+#[[ $- = *i* ]] && source ~/.liquidprompt
+##PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
+## }}}
+
+# working on prompt choice for both bash and zsh... this will be a hyper-fast, auto-detecting, zero-overhead prompt setup:
+[ -f "$HOME/.shell_prompt_choice" ] && source "$HOME/.shell_prompt_choice"
 

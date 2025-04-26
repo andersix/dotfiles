@@ -263,26 +263,6 @@ function frg {
     fi
 }
 
-#
-# Oh my zsh, is not for me...
-#
-if [[ $- == *i* ]]; then  # Use only if in an interactive shell
-    # Prefer to use "spaceship prompt":
-    #   https://github.com/spaceship-prompt/spaceship-prompt.git
-    if [[ -e ~/.zsh.d/spaceship-prompt/spaceship.zsh ]]; then
-        source ~/.zsh.d/spaceship-prompt/spaceship.zsh
-        ## Add a custom vi-mode section to the prompt
-        ## See: https://github.com/spaceship-prompt/spaceship-vi-mode
-        #source ~/.zsh.d/spaceship-vi-mode/spaceship-vi-mode.plugin.zsh
-        #spaceship add --before char vi_mode
-    elif
-        # Else liquidprompt...
-        if [[ -e ~/.liquidpromptrc ]]; then
-            source ~/.liquidpromptrc
-        fi
-        source ~/.liquidprompt
-fi
-
 
 # Suggests commands as you type based on history and completions.
 # https://github.com/zsh-users/zsh-autosuggestions
@@ -298,4 +278,23 @@ if [[ -e ~/.zsh.d/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
     source ~/.zsh.d/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
 
+#
+# Oh my zsh, is not for me...
+#
+#if [[ $- == *i* ]]; then  # Use only if in an interactive shell
+#    # Prefer to use "starship prompt":
+#    #   https://starship.rs/
+#    if [[ -e /opt/homebrew/bin/starship ]]; then
+#        eval "$(starship init zsh)"
+#        export STARSHIP_CONFIG=~/.config/starship/starship.toml
+#    elif
+#        # Else liquidprompt...
+#        if [[ -e ~/.liquidpromptrc ]]; then
+#            source ~/.liquidpromptrc
+#        fi
+#        source ~/.liquidprompt
+#fi
+
+# working on prompt choice for both bash and zsh... this will be a hyper-fast, auto-detecting, zero-overhead prompt setup:
+[ -f "$HOME/.shell_prompt_choice" ] && source "$HOME/.shell_prompt_choice"
 

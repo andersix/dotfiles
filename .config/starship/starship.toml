@@ -1,0 +1,87 @@
+add_newline = false
+# A minimal left prompt
+format = """$directory$character"""
+palette = "catppuccin_mocha"
+# move the rest of the prompt to the right
+right_format = """$all"""
+command_timeout = 1000
+
+[character]
+success_symbol = '[⟩](bold green)'
+error_symbol = '[](bold red)'
+vimcmd_symbol = '[⟨](bold green)'
+vimcmd_replace_one_symbol = '[⟨](bold purple)'
+vimcmd_replace_symbol = '[⟨](bold purple)'
+vimcmd_visual_symbol = '[⟨](bold yellow)'
+
+[directory]
+truncation_length = 3
+truncation_symbol = '../'
+
+[directory.substitutions]
+'/global/projects/pequin' = 'pequin'
+
+[python]
+disabled = false
+format = '\[[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))]($style)\]'
+detect_files = ["requirements.txt", "pyproject.toml", "setup.py"]  # Only show for real projects
+#only_virtual_env = true
+
+# SystemVerilog/ASIC Detection
+[custom.systemverilog]
+description = "Show RTL tag if ASIC-related files are detected"
+command = "echo   RTL"
+when = '''fd . . \
+  -d 1 \
+  -e sv -e v -e vh -e f -e do -e sdc -e tcl -e mk \
+  -E .git \
+  | grep -q .'''
+#when = '''find . \
+#  \( -maxdepth 1 -name '*.sv' -o -name '*.v' -o -name '*.vh' \
+#     -o -name '*.f' -o -name '*.do' \
+#     -o -name '*.sdc' -o -name '*.tcl' \
+#     -o -name '*.mk' \) \
+#  | grep -q .'''
+format = "[$output](bold purple)"
+
+
+[git_branch]
+format =  '[$symbol$branch(:$remote_branch)]($style)'
+
+[aws]
+format = '[$symbol(profile: "$profile" )(\(region: $region\) )]($style)'
+disabled = false
+style = 'bold blue'
+symbol = " "
+
+[docker_context]
+disabled = true
+
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
+
