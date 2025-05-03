@@ -1,6 +1,7 @@
 # .bashrc
 
 #Global options {{{
+export HOSTNAME=$(hostname)
 export SHELL_SESSION_HISTORY=0
 export HISTFILESIZE=
 export HISTSIZE=""

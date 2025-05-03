@@ -1,3 +1,11 @@
+" hl_matchit plugin configuration
+let g:hl_matchit_enable_on_vim_startup = 1
+let g:hl_matchit_hl_groupname = 'Search'
+let g:hl_matchit_speed_level = 1
+
+" Use the % key to jump between matching keywords
+runtime macros/matchit.vim
+
 " matchit settings for verilog keywords
 if exists('loaded_matchit')
 let b:match_ignorecase=0

@@ -45,3 +45,5 @@ alias yt-best="yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/be
 # the terminal rickroll
 alias rr='curl -s -L https://raw.githubusercontent.com/keroserene/rickrollrc/master/roll.sh | bash'
 
+alias rechoose_prompt='CHOOSE_PROMPT_ALREADY_SET=0; choose_prompt'
+

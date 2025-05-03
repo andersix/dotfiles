@@ -26,6 +26,8 @@
 #
 #
 
+export HOSTNAME=$(hostname)
+
 # OSX Homebrew config (https://brew.sh/)
 # {{{
 if [[ "$OSTYPE" == darwin* ]]; then
@@ -295,6 +297,9 @@ fi
 #        source ~/.liquidprompt
 #fi
 
-# working on prompt choice for both bash and zsh... this will be a hyper-fast, auto-detecting, zero-overhead prompt setup:
+# Load prompt selection. This is a hyper-fast, auto-detecting, zero-overhead prompt setup:
 [ -f "$HOME/.shell_prompt_choice" ] && source "$HOME/.shell_prompt_choice"
+# Choose prompt
+choose_prompt
+
 
