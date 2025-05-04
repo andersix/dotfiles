@@ -1,38 +1,56 @@
+# Top-level settings
 add_newline = false
-
-format = """\
-$hostname \
-$directory \
-$character"""
-palette = "catppuccin_mocha"
-# move the rest of the prompt to the right
-right_format = """$all"""
 command_timeout = 1000
+palette = "catppuccin_mocha"
+
+# Only show modules you want in specific order
+format = """$hostname $directory $character"""
+# move the rest of the prompt to the right
+#right_format = """$all"""
+#right_format = """$git_branch $git_status $python $cmd_duration $time"""
+right_format = """$git_branch $git_status"""
 
 [hostname]
 ssh_only = false
-format = '\[[${hostname}]($style)\]'
+format = "\\[[$hostname](${style})\\]"
 style = "bold green"
 ssh_symbol = "🔗 "
-#ssh_symbol = "󰱠 "
-#ssh_style = "bold peach"
 trim_at = ""
+
+[directory]
+truncation_length = 10
+truncation_symbol = '../'
+truncate_to_repo = true
+
+[directory.substitutions]
+'/global/projects/pequin' = 'pequin'
 
 [character]
 success_symbol = '[⟩](bold green)'
-error_symbol = '[](bold red)'
+error_symbol = '[](bold red)'
 vimcmd_symbol = '[⟨](bold green)'
 vimcmd_replace_one_symbol = '[⟨](bold purple)'
 vimcmd_replace_symbol = '[⟨](bold purple)'
 vimcmd_visual_symbol = '[⟨](bold yellow)'
 
-[directory]
-truncation_length = 3
-truncation_symbol = '../'
+[git_branch]
+format = '[$symbol$branch(:$remote_branch)]($style)'
+style = 'bold purple'
 
-[directory.substitutions]
-'/global/projects/pequin' = 'pequin'
+[git_status]
+format = '[$all_status$ahead_behind]($style)'
+style = 'bold yellow'
+staged = '[+\($count\)](green)'
+modified = '[~\($count\)](yellow)'
+deleted = '[-\($count\)](red)'
+untracked = '[?\($count\)](blue)'
+conflicted = '[x\($count\)](red)'
+ahead = '⇡($count)'
+behind = '⇣($count)'
+diverged = '⇕($count)'
+up_to_date = "✅"
 
+# Palette definition
 [palettes.catppuccin_mocha]
 rosewater = "#f5e0dc"
 flamingo = "#f2cdcd"
@@ -61,264 +79,3 @@ base = "#1e1e2e"
 mantle = "#181825"
 crust = "#11111b"
 
-
-#[git_branch]
-#format = '[$symbol$branch(:$remote_branch) $git_status]($style)'
-#style = 'bold purple'
-#
-#[git_status]
-#format = '[$all_status$ahead_behind]($style)'
-##format = '([$all_status$ahead_behind] )($style)'
-#style = 'bold yellow'
-#staged = '[+\($count\)](green)'
-#modified = '[~\($count\)](yellow)'
-#deleted = '[-\($count\)](red)'
-#untracked = '[?\($count\)](blue)'
-#conflicted = '[x\($count\)](red)'
-#ahead = '⇡($count)'
-#behind = '⇣($count)'
-#diverged = '⇕($count)'
-## If there are NO changes at all, show a green ✅ checkmark
-## Otherwise, show the diff counts as above
-#[git_state]
-#format = '([$state( $progress_current/$progress_total)]($style))'
-#style = 'bold yellow'
-#
-#[custom.git_clean]
-#command = 'echo "✅"'
-#when = 'test -z "$(git status --porcelain 2>/dev/null)"'
-#format = '[$output]($style) '
-#style = 'bold green'
-
-
-[git_branch]
-format = '[$symbol$branch(:$remote_branch) $git_status]($style)'
-style = 'bold purple'
-
-[git_status]
-#format = '([$state( $progress_current/$progress_total)]($style))'
-format = '[\[$status_icon\]($style) $all_status$ahead_behind]($style)'
-style = 'bold yellow'
-
-# Clean repo check
-#clean = '✅ '
-
-# Show icons only when needed
-staged = '[+\($count\)](green)'
-modified = '[~\($count\)](yellow)'
-deleted = '[-\($count\)](red)'
-untracked = '[?\($count\)](blue)'
-conflicted = '[x\($count\)](red)'
-
-# Git status indicators for ahead/behind/other
-ahead = '⇡($count)'
-behind = '⇣($count)'
-diverged = '⇕($count)'
-
-# Conditionally show clean check icon
-[git_status.status_icon]
-format = '[✅](bold green)'
-when = 'git status --porcelain | grep -q "^??\|^ M\|^ A" || git diff --quiet'
-
-
-[python]
-disabled = false
-format = '\[[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))]($style)\]'
-detect_files = ["requirements.txt", "pyproject.toml", "setup.py"]  # Only show for real projects
-#only_virtual_env = true
-
-
-
-#
-# Keeping prompt clean... disable things I don't care about:
-[aws]
-disabled = true
-
-[bun]
-disabled = true
-
-[c]
-disabled = true
-
-[cmake]
-disabled = true
-
-[cmd_duration]
-disabled = true
-
-[cobol]
-disabled = true
-
-[conda]
-disabled = true
-
-[crystal]
-disabled = true
-
-[daml]
-disabled = true
-
-[dart]
-disabled = true
-
-[deno]
-disabled = true
-
-[docker_context]
-disabled = true
-
-[dotnet]
-disabled = true
-
-[elixir]
-disabled = true
-
-[elm]
-disabled = true
-
-[erlang]
-disabled = true
-
-[fennel]
-disabled = true
-
-[fossil_branch]
-disabled = true
-
-[gcloud]
-disabled = true
-
-#[git_branch]
-#disabled = true
-
-#[git_status]
-#disabled = true
-
-[golang]
-disabled = true
-
-[gradle]
-disabled = true
-
-[guix_shell]
-disabled = true
-
-[haskell]
-disabled = true
-
-[haxe]
-disabled = true
-
-[helm]
-disabled = true
-
-[hg_branch]
-disabled = true
-
-[java]
-disabled = true
-
-[julia]
-disabled = true
-
-[kotlin]
-disabled = true
-
-[kubernetes]
-disabled = true
-
-[lua]
-disabled = true
-
-[memory_usage]
-disabled = true
-
-[meson]
-disabled = true
-
-[nim]
-disabled = true
-
-[nix_shell]
-disabled = true
-
-[nodejs]
-disabled = true
-
-[ocaml]
-disabled = true
-
-[opa]
-disabled = true
-
-[openstack]
-disabled = true
-
-[os]
-disabled = true
-
-[package]
-disabled = true
-
-[perl]
-disabled = true
-
-[php]
-disabled = true
-
-[pijul_channel]
-disabled = true
-
-[pulumi]
-disabled = true
-
-[purescript]
-disabled = true
-
-#[python]
-#disabled = true
-
-[raku]
-disabled = true
-
-[red]
-disabled = true
-
-[ruby]
-disabled = true
-
-[rust]
-disabled = true
-
-[scala]
-disabled = true
-
-[spack]
-disabled = true
-
-[sudo]
-disabled = true
-
-[swift]
-disabled = true
-
-[terraform]
-disabled = true
-
-[time]
-disabled = true
-
-[username]
-disabled = true
-
-[vagrant]
-disabled = true
-
-[vlang]
-disabled = true
-
-[zig]
-disabled = true
-
-[solidity]
-disabled = true
