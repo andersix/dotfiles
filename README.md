@@ -29,7 +29,11 @@ alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 Then grab the dotfiles from your repo for the new mahcine:
 ```sh
 git clone --separate-git-dir=$HOME/.dotfiles https://github.com/andersix/dotfiles.git dotfiles-tmp
+```
+```sh
 rsync --recursive --verbose --exclude '.git' dotfiles-tmp/ $HOME/
+```
+```sh
 rm --recursive dotfiles-tmp
 ```
 
@@ -67,6 +71,14 @@ Post install, vim will try to load plugins I use. Simply use pluginstall to get 
 vim
 # then inside vim use the colon command:
 :PlugInstall
+```
+
+### TMUX
+I remap the default tmux prefix from Ctrl-b to Ctrl-a and use several tmux plugins. See the plugins section in the .tmux.conf file. First launch of tmux, install plugins by pressing the prefix followed by 'I':
+```sh
+tmux
+# then inside the tmux session:
+Ctrl + b I
 ```
 
 ## Usage
