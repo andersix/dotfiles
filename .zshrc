@@ -302,4 +302,10 @@ fi
 # Choose prompt
 choose_prompt
 
+# Set SSH_AUTH_SOCK and verify socket exists
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+# warn if socket doesn't exist
+if [ ! -S "$SSH_AUTH_SOCK" ]; then
+    echo "Warning: SSH agent socket not found. Is ssh-agent.service running?"
+fi
 
