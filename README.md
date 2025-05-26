@@ -78,7 +78,7 @@ I remap the default tmux prefix from Ctrl-b to Ctrl-a and use several tmux plugi
 ```sh
 tmux
 # then inside the tmux session:
-Ctrl + b I
+Ctrl + a I
 ```
 
 ## Usage
