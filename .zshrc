@@ -1,5 +1,6 @@
 # vim:tabstop=4:softtabstop=4:shiftwidth=4:textwidth=79:expandtab:autoindent:fileformat=unix:
 #
+# Oh... this is "my" .zshrc
 #
 # Here is a non-exhaustive list, in execution-order, of what each zsh file tends to contain:
 #
@@ -267,40 +268,38 @@ function frg {
 
 
 # Suggests commands as you type based on history and completions.
-# https://github.com/zsh-users/zsh-autosuggestions
+#   https://github.com/zsh-users/zsh-autosuggestions
 if [[ -e .zsh.d/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
     source .zsh.d/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
 
 # The following package provides syntax highlighting zsh.
 # get from:
-# git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
+#   git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
 # MUST be sourced last in zshrc
 if [[ -e ~/.zsh.d/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
     source ~/.zsh.d/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
 
 #
-# Oh my zsh, is not for me...
+# The "actual" Oh my zsh setup is not for me. Rather I use an interactive
+# prompt, either liquidprompt or starship
 #
-#if [[ $- == *i* ]]; then  # Use only if in an interactive shell
-#    # Prefer to use "starship prompt":
-#    #   https://starship.rs/
-#    if [[ -e /opt/homebrew/bin/starship ]]; then
-#        eval "$(starship init zsh)"
-#        export STARSHIP_CONFIG=~/.config/starship/starship.toml
-#    elif
-#        # Else liquidprompt...
-#        if [[ -e ~/.liquidpromptrc ]]; then
-#            source ~/.liquidpromptrc
-#        fi
-#        source ~/.liquidprompt
-#fi
-
-# Load prompt selection. This is a hyper-fast, auto-detecting, zero-overhead prompt setup:
-[ -f "$HOME/.shell_prompt_choice" ] && source "$HOME/.shell_prompt_choice"
-# Choose prompt
-choose_prompt
+# # Liquidprompt:
+#   https://github.com/liquidprompt/liquidprompt
+#
+# # Starship Prompt:
+#   https://starship.rs/
+#   https://github.com/starship/starship
+#
+# # Nerd Fonts (I use FiraCode Mono)
+#   https://www.nerdfonts.com/font-downloads
+#
+# Load prompt:
+if [[ -e "$HOME/.shell_prompt_choice" ]]; then
+  source "$HOME/.shell_prompt_choice"
+  choose_prompt
+fi
 
 # Set SSH_AUTH_SOCK and verify socket exists
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
