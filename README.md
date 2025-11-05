@@ -15,7 +15,7 @@ Use this if you just want to use this dotfiles methodology. Otherwise skip and u
 ```sh
 git init --bare $HOME/.dotfiles
 alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-dotfiles remote add origin/master git@github.com:andersix/dotfiles.git
+dotfiles remote add origin git@github.com:andersix/dotfiles.git
 
 Add "dotfiles" alias above to your shell aliases for future use.
 ```
@@ -26,15 +26,11 @@ On the new machine you want dotfiles on, create a dotfiles alias to git:
 alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 ```
 ### Get dotfiles
-Then grab the dotfiles from your repo for the new mahcine:
+Then grab the dotfiles from your repo for the new machine:
 ```sh
-git clone --separate-git-dir=$HOME/.dotfiles https://github.com/andersix/dotfiles.git dotfiles-tmp
-```
-```sh
-rsync --recursive --verbose --exclude '.git' dotfiles-tmp/ $HOME/
-```
-```sh
-rm --recursive dotfiles-tmp
+git clone --separate-git-dir="$HOME/.dotfiles" https://github.com/andersix/dotfiles.git "$HOME/dotfiles-tmp"
+rsync -a --exclude '.git' "$HOME/dotfiles-tmp/" "$HOME/"
+rm -rf "$HOME/dotfiles-tmp"
 ```
 
 ### Git config needed for dotfiles

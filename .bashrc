@@ -1,4 +1,6 @@
 # .bashrc
+# return if non-interactive
+case $- in *i*) ;; *) return ;; esac
 
 #Global options {{{
 export HOSTNAME=$(hostname)
@@ -66,11 +68,6 @@ fi
 ## complete -F _gcomp g
 ## # }}}
 
-# Fixes hg/mercurial {{{
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
-# }}}
-
 # Global aliases  {{{
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
@@ -93,9 +90,13 @@ function skip {
     cut -d' ' -f$n-
 }
 
-# global search and replace OSX
+# cross-platform search/replace (BSD vs GNU sed)
 function sr {
-    find . -type f -exec sed -i '' s/$1/$2/g {} +
+  if [[ "$(uname)" == "Darwin" ]]; then
+    find . -type f -exec sed -i '' "s/$1/$2/g" {} +
+  else
+    find . -type f -exec sed -i "s/$1/$2/g" {} +
+  fi
 }
 
 # shows last modification date for trunk and $1 branch
@@ -119,7 +120,7 @@ function gmvb {
 
 # git search for extension $1 and occurrence of string $2
 function gfe {
-  git f \.$1 | xargs grep -i $2 | less
+    git ls-files "*.$1" | xargs grep -ni "$2" | less -R
 }
 
 #open with vim from a list of files, nth one (vim file number x)
@@ -225,9 +226,9 @@ if [ $(uname) == "Darwin" ]; then
   }
   #open visual studio code
   function vsc {
-    if [ -e $1 ];
-      then open -a Visual\ Studio\ Code $@;
-      else touch $@ && -a Visual\ Studio\ Code $@;
+    if [ -e "$1" ];
+      then open -a "Visual Studio Code" "$@";
+      else touch "$@" && open -a "Visual Studio Code" "$@";
     fi
   }
 
@@ -317,23 +318,9 @@ export PATH=$HOME/bin:$PATH
 
 
 ## Liquid Prompt {{{
-# TODO: move LP options into liquidpromptrc
-#LP_ENABLE_SVN=0
-#LP_ENABLE_FOSSIL=0
-#LP_ENABLE_BZR=0
-#LP_ENABLE_BATT=0
-#LP_ENABLE_LOAD=0
-#LP_ENABLE_PROXY=0
-#LP_USER_ALWAYS=1
-#LP_HOSTNAME_ALWAYS=0
-#LP_ENABLE_RUNTIME=0
-#LP_ENABLE_TIME=0
-#LP_ENABLE_PERM=0
-#LP_ENABLE_TITLE=1
-#[[ $- = *i* ]] && source ~/.liquidprompt
-##PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
+# NOTE: LP options are in ~/.config/liquidpromptrc
 ## }}}
 
-# working on prompt choice for both bash and zsh... this will be a hyper-fast, auto-detecting, zero-overhead prompt setup:
+# pick prompt
 [ -f "$HOME/.shell_prompt_choice" ] && source "$HOME/.shell_prompt_choice"
 

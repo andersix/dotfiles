@@ -2,9 +2,15 @@ alias ..='cd ..'
 alias ...='cd ../../../'
 alias ....='cd ../../../../'
 alias .....='cd ../../../../'
-# do not delete / or prompt if deleting more than 3 files at a time #
-# Macos does not support this: alias rm='rm -I --preserve-root'
-alias rm='rm -i'
+
+# safer rm per-OS
+if [[ "$(uname)" == "Darwin" ]]; then
+#  alias rm='rm -i'
+  command -v trash >/dev/null && alias rm='trash' || alias rm='rm -i'
+else
+  alias rm='rm -I --preserve-root'  # GNU coreutils
+fi
+
 # confirmation #
 alias mv='mv -i'
 alias cp='cp -i'

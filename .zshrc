@@ -25,7 +25,9 @@
 #    .zlogout---is sometimes used to clear and reset the terminal.
 #       It is called when exiting, not when opening.
 #
-#
+
+# return if non-interactive
+[[ -o interactive ]] || return
 
 export HOSTNAME=$(hostname)
 
@@ -52,12 +54,22 @@ fi
 # Enable colors and change prompt:
 autoload -U colors && colors
 
-# Basic auto/tab complete:
-autoload -U compinit
+# Completion (compinit with caching)
+# Safe compdump path under XDG
+: ${XDG_CACHE_HOME:="$HOME/.cache"}
+export ZSH_COMPDUMP="$XDG_CACHE_HOME/zsh/zcompdump"
+mkdir -p "${ZSH_COMPDUMP:h}"
+autoload -Uz compinit
 zstyle ':completion:*' menu select
 zmodload zsh/complist
-compinit
-_comp_options+=(globdots)  # Include hidden files.
+setopt AUTO_CD AUTO_PUSHD HIST_IGNORE_DUPS HIST_IGNORE_SPACE SHARE_HISTORY EXTENDED_GLOB
+setopt PROMPT_SUBST INTERACTIVE_COMMENTS
+compinit -d "$ZSH_COMPDUMP"
+_comp_options+=(globdots) # Include hidden files.
+
+
+
+
 
 # vi mode at command prompt:
 # {{{
@@ -97,8 +109,9 @@ bindkey '^e' edit-command-line
 
 
 
-# History
+# History (XDG-aware)
 # {{{
+: ${XDG_STATE_HOME:="$HOME/.local/state"}
 # do not permits to recall dangerous commands in bash history
 export HISTIGNORE='&:[bf]g:exit:*>|*:*rm*-rf*'
 unset HISTFILESIZE
@@ -109,7 +122,9 @@ export HISTSIZE=2147483647
 #save history after logout
 export SAVEHIST=$HISTSIZE
 #history file
-export HISTFILE=~/.zhistory
+#export HISTFILE=~/.zhistory
+export HISTFILE="$XDG_STATE_HOME/zsh/history"
+mkdir -p "${HISTFILE:h}"
 #append into history file
 setopt INC_APPEND_HISTORY
 #save only one command if 2 common are same and consistent
@@ -187,7 +202,10 @@ export LESS="-FX -R"
 # MacOS: brew install pygments
 #export LESSOPEN='|~/lessfilter.sh %s'
 #export LESSOPEN='|~/code/dotfiles/lessfilter.sh %s'
-export LESSOPEN='|pygmentize -O style=solarized-dark -g %s'
+if command -v pygmentize >/dev/null 2>&1; then
+  export LESSOPEN='|pygmentize -O style=solarized-dark -g %s'
+fi
+
 
 function psg() {
     #        do not show grep itself           color matching string              color the PID
@@ -197,7 +215,8 @@ function psg() {
 
 
 # default editor
-export EDITOR='gvim --nofork'
+export EDITOR="${EDITOR:-vim}"
+export VISUAL="${VISUAL:-gvim --nofork}"
 
 # ipython shell with correct default apps
 alias ipy='ipython -pylab -p scipy --editor="gvim"'
@@ -232,9 +251,11 @@ calc() {
 }
 
 # Global aliases  {{{
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases  # bash and zsh aliases same they are
-fi
+# Aliases & functions (XDG layout)
+for f in "$XDG_CONFIG_HOME/shell"/{aliases,functions,completion}.sh; do
+  [[ -r "$f" ]] && source "$f"
+done
+[[ -r "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"   # share aliases
 # }}}
 
 # alias I want to learn
@@ -266,11 +287,15 @@ function frg {
     fi
 }
 
+# Tools: fzf, bat/eza fallbacks
+command -v fzf >/dev/null   && [[ -r /usr/share/fzf/key-bindings.zsh ]] && source /usr/share/fzf/key-bindings.zsh
+command -v bat >/dev/null   && alias cat='bat -pp'
+command -v eza >/dev/null   && alias ls='eza -F' || alias ls='ls -GF'   # macOS ls colors
 
 # Suggests commands as you type based on history and completions.
 #   https://github.com/zsh-users/zsh-autosuggestions
-if [[ -e .zsh.d/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
-    source .zsh.d/zsh-autosuggestions/zsh-autosuggestions.zsh
+if [[ -e "$HOME/.zsh.d/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+  source "$HOME/.zsh.d/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
 
 # The following package provides syntax highlighting zsh.
@@ -301,10 +326,10 @@ if [[ -e "$HOME/.shell_prompt_choice" ]]; then
   choose_prompt
 fi
 
-# Set SSH_AUTH_SOCK and verify socket exists
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
-# warn if socket doesn't exist
-if [ ! -S "$SSH_AUTH_SOCK" ]; then
-    echo "Warning: SSH agent socket not found. Is ssh-agent.service running?"
-fi
+# # Set SSH_AUTH_SOCK and verify socket exists
+# export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+# # warn if socket doesn't exist
+# if [ ! -S "$SSH_AUTH_SOCK" ]; then
+#     echo "Warning: SSH agent socket not found. Is ssh-agent.service running?"
+# fi
 
