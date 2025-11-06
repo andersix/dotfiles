@@ -1,0 +1,262 @@
+# ~/.shell_functions
+# Shared functions for bash and zsh
+# Sourced by both .bashrc and .zshrc
+
+# Find files by name (ignoring .svn and .git directories)
+function findf {
+  find . -type f | grep -v .svn | grep -v .git | grep -i "$1"
+}
+
+# Print only column x of output
+function col {
+  awk -v col="$1" '{print $col}'
+}
+
+# Skip first x words in line
+function skip {
+    n=$(($1 + 1))
+    cut -d' ' -f$n-
+}
+
+# Cross-platform search/replace (BSD vs GNU sed)
+function sr {
+  if [ "$IS_MACOS" -eq 1 ]; then
+    find . -type f -exec sed -i '' "s/$1/$2/g" {} +
+  else
+    find . -type f -exec sed -i "s/$1/$2/g" {} +
+  fi
+}
+
+# Shows last modification date for trunk and $1 branch
+function glogm {
+  echo "master $(git log -u master "$2" | grep -m1 Date:)"
+  echo "$1 $(git log -u "$1" "$2" | grep -m1 Date:)"
+}
+
+# Git rename current branch and backup if overwritten
+function gmvb {
+  curr_branch_name=$(git branch | grep -F '*' | cut -c 3-);
+  if ! git branch | cut -c 3- | grep -qx "$1"; then
+    git branch -m "$curr_branch_name" "$1"
+  else
+    temp_branch_name="$1-old-$RANDOM";
+    echo "target branch name already exists, renaming to $temp_branch_name"
+    git branch -m "$1" "$temp_branch_name"
+    git branch -m "$curr_branch_name" "$1"
+  fi
+}
+
+# Git search for extension $1 and occurrence of string $2
+function gfe {
+    git ls-files "*.$1" | xargs grep -ni "$2" | less -R
+}
+
+# Open with vim from a list of files, nth one (vim file number x)
+function vfn {
+  last_command=$(history 2 | head -1 | cut -d" " -f2- | cut -c 2-);
+  vim "$($last_command | head -"$1" | tail -1)"
+}
+
+# Open a scratch file in Dropbox
+function sc {
+  gvim ~/Dropbox/"$(openssl rand -base64 10 | tr -dc 'a-zA-Z')".txt
+}
+function scratch {
+  gvim ~/Dropbox/"$(openssl rand -base64 10 | tr -dc 'a-zA-Z')".txt
+}
+
+# Do ripgrep then fuzzy search in the resulting files+text while showing context
+# Requires: rg (ripgrep), fzf, bat
+function frg {
+  result=$(rg --ignore-case --color=always --line-number --no-heading "$@" |
+    fzf --ansi \
+        --color 'hl:-1:underline,hl+:-1:underline:reverse' \
+        --delimiter ':' \
+        --preview "bat --color=always {1} --theme='Solarized (light)' --highlight-line {2}" \
+        --preview-window 'up,60%,border-bottom,+{2}+3/3,~3')
+  file="${result%%:*}"
+  linenumber=$(echo "${result}" | cut -d: -f2)
+  if [[ -n "$file" ]]; then
+          $EDITOR +"${linenumber}" "$file"
+  fi
+}
+
+# Process grep with colored output
+# Usage: psg <process_name>
+function psg() {
+    # Note: requires 'colout' tool for PID coloring
+    ps aux | grep -v grep | grep --ignore-case --color=always "$1" | colout '^\S+\s+([0-9]+).*$' blue
+}
+
+# Take a snapshot of the current git repository and zip it
+# The archive file name has the current date in its name
+function git_archive() {
+    last_commit_date=$(git log -1 --format=%ci | awk '{print $1"_"$2;}' | sed "s/:/-/g")
+    project=$(basename "$(pwd)")
+    name=${project}_${last_commit_date}
+    git archive --prefix="$name"/ --format zip master > "$name".zip
+    echo "$name.zip"
+}
+
+# Intuitive calculator on the command line
+# Usage: calc 3 × 5.1 ÷ 2
+# Requires: gcalccmd
+calc() {
+    calc="$*"
+    # We can use the unicode signs × and ÷
+    calc="${calc//×/*}"
+    calc="${calc//÷//}"
+    echo -e "$calc\nquit" | gcalccmd | sed 's/^> //g'
+}
+
+# Comprehensive help function - shows all custom aliases and functions
+function h() {
+    cat << 'HELP_EOF'
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        SHELL ALIASES & FUNCTIONS HELP                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─ NAVIGATION ─────────────────────────────────────────────────────────────────┐
+│ ..        → cd ..                                                            │
+│ ...       → cd ../../../                                                     │
+│ ....      → cd ../../../../                                                  │
+│ .....     → cd ../../../../../                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ FILE LISTING (ls family) ───────────────────────────────────────────────────┐
+│ l         → ls -1              (one file per line)                           │
+│ la        → ls -Al             (show hidden files)                           │
+│ ll        → ls -l              (long format)                                 │
+│ lk        → ls -lSr            (sort by size, smallest first)                │
+│ lc        → ls -lcr            (sort by change time)                         │
+│ lu        → ls -lur            (sort by access time)                         │
+│ lr        → ls -lR             (recursive ls)                                │
+│ lt        → ls -ltr            (sort by date, oldest first)                  │
+│ lx        → ls -lXB            (sort by extension)                           │
+│ lm        → ls -al | less      (pipe through 'less')                         │
+│ tree      → tree -Csu          (colorized tree with size)                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ FILE OPERATIONS ────────────────────────────────────────────────────────────┐
+│ rm        → rm with safety     (trash on macOS, rm -I on Linux)              │
+│ mv        → mv -i              (interactive, confirm overwrite)              │
+│ cp        → cp -i              (interactive, confirm overwrite)              │
+│ untar     → tar xvf            (extract tar archive)                         │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ EDITOR ─────────────────────────────────────────────────────────────────────┐
+│ vi        → vim                (use vim instead of vi)                       │
+│ vimo      → vim -O             (open vim in vertical split mode)             │
+│ gvim      → [function]         (open MacVim on macOS, GUI vim)               │
+│ vsc       → [function]         (open Visual Studio Code, macOS)              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ GIT ────────────────────────────────────────────────────────────────────────┐
+│ dotfiles      → git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME            │
+│ git_log       → pretty git log with colors                                   │
+│ git_remotes   → show remote URLs from .git/config                            │
+│ git_archive() → create dated zip snapshot of repo                            │
+│ glogm()       → show last modification dates for branches                    │
+│ gmvb()        → git rename branch with backup                                │
+│ gfe()         → git search by file extension and string                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ──────────────────────────────────────────────────────────────────┐
+│ genpass   → openssl rand -base64 20    (generate random password)           │
+│ nowdate   → date +"%Y-%m-%d"           (current date in ISO format)         │
+│ ping      → ping -c 5                  (ping 5 times then stop)             │
+│ ports     → netstat -tulanp            (show open ports)                    │
+│ sha       → shasum -a 256              (SHA-256 checksum)                   │
+│ dpaste    → curl dpaste.de/api/        (paste to dpaste via stdin)          │
+│ notes     → vim ~/notes/notes-YYYYMMDD.md  (daily notes file)               │
+│ calc()    → command-line calculator    (supports × and ÷ unicode)           │
+│ free      → free -m                    (show memory in MB)                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SEARCH & FIND ──────────────────────────────────────────────────────────────┐
+│ findf()   → find files by name (ignoring .git/.svn)                          │
+│ frg()     → ripgrep + fzf with preview (interactive search)                  │
+│ psg()     → ps aux | grep with colored output                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ TEXT PROCESSING ────────────────────────────────────────────────────────────┐
+│ col()     → print column N from output                                       │
+│ skip()    → skip first N words in each line                                  │
+│ sr()      → search/replace in files (cross-platform sed)                     │
+│ head      → adaptive (shows terminal height - 2 lines)                       │
+│ tail      → adaptive (shows terminal height - 2 lines)                       │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SYSTEM & LOGS ──────────────────────────────────────────────────────────────┐
+│ jctl      → journalctl -p 3 -xb       (show errors from journalctl)         │
+│ time      → /usr/bin/time -f ...      (detailed time output, Linux)         │
+│ alert     → notify-send after command (Linux notification)                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ DEVELOPMENT ────────────────────────────────────────────────────────────────┐
+│ ipy       → ipython -pylab -p scipy   (iPython with scientific stack)       │
+│ gpip()    → pip3 without virtualenv requirement                              │
+│ vfn()     → open Nth file from previous command output in vim                │
+│ sc()      → open random scratch file in Dropbox                              │
+│ scratch() → same as sc()                                                     │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ DOCKER (macOS) ─────────────────────────────────────────────────────────────┐
+│ dm        → docker-machine                                                   │
+│ dc        → docker-compose                                                   │
+│ dk        → docker                                                           │
+│ dn        → docker network                                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SECURITY & CRYPTO ──────────────────────────────────────────────────────────┐
+│ gpg-check    → gpg2 --keyserver-options auto-key-retrieve --verify          │
+│ gpg-retrieve → gpg2 --keyserver-options auto-key-retrieve --receive-keys    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ MEDIA & FUN ────────────────────────────────────────────────────────────────┐
+│ yt-best   → yt-dlp best quality mp4                                          │
+│ rr        → terminal rickroll (curl rickrollrc)                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SHELL CONFIGURATION ────────────────────────────────────────────────────────┐
+│ rechoose_prompt → re-run prompt selection (Liquidprompt/Starship)           │
+│ history         → show full history (alias for 'history 1' in zsh)          │
+│ hist            → same as history                                            │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ MODERN TOOL INTEGRATIONS ──────────────────────────────────────────────────┐
+│ bat       → replaces cat with syntax highlighting (if installed)             │
+│ eza       → replaces ls with modern features (if installed)                  │
+│ fzf       → fuzzy finder with key bindings (if installed)                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+TIP: Type 'alias' to see all active aliases, 'type <command>' to see what it does
+HELP_EOF
+}
+
+# Python pip without virtualenv requirement
+# I've setup pip3 to require a python virtualenv, so running pip3 outside
+# a virtualenv will fail. To update or install global python packages,
+# use gpip, i.e., gpip install --upgrade pip setuptools wheel virtualenv
+gpip(){
+   PIP_REQUIRE_VIRTUALENV="0" pip3 "$@"
+}
+
+# macOS-specific functions
+if [ "$IS_MACOS" -eq 1 ]; then
+  # Open MacVim (install macvim from homebrew if not already installed)
+  function gvim {
+    if [ -e "$1" ];
+      then open -a MacVim "$@";
+      else touch "$@" && open -a MacVim "$@";
+    fi
+  }
+
+  # Open Visual Studio Code
+  function vsc {
+    if [ -e "$1" ];
+      then open -a "Visual Studio Code" "$@";
+      else touch "$@" && open -a "Visual Studio Code" "$@";
+    fi
+  }
+fi

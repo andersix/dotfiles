@@ -1,0 +1,227 @@
+# ~/.shell_aliases
+# Shared aliases and environment settings for bash and zsh
+# Sourced by both .bashrc and .zshrc
+
+# ============================================================================
+# OS DETECTION
+# ============================================================================
+
+# Detect OS once and set consistent variables for use throughout all configs
+# This is more efficient than calling uname repeatedly or checking OSTYPE multiple times
+case "$(uname -s)" in
+    Darwin)
+        export IS_MACOS=1
+        export IS_LINUX=0
+        ;;
+    Linux)
+        export IS_MACOS=0
+        export IS_LINUX=1
+        ;;
+    *)
+        export IS_MACOS=0
+        export IS_LINUX=0
+        ;;
+esac
+
+# ============================================================================
+# ENVIRONMENT VARIABLES
+# ============================================================================
+
+# XDG Base Directory Specification
+# These help keep $HOME clean by organizing configs, cache, data, and state
+# Note: .zprofile also sets these for zsh, so we use ${VAR:-default} to respect existing values
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+
+# Editor configuration
+export EDITOR="${EDITOR:-vim}"
+export VISUAL="${VISUAL:-gvim --nofork}"
+export PAGER=less
+
+# Less configuration
+# -F: quit if entire file fits on screen
+# -X: don't clear screen on exit
+# -R: support ANSI colors
+export LESS="-FX -R"
+
+# Syntax coloring with pygments in less, when opening source files
+if command -v pygmentize >/dev/null 2>&1; then
+  export LESSOPEN='|pygmentize -O style=solarized-dark -g %s'
+fi
+
+# ============================================================================
+# NAVIGATION ALIASES
+# ============================================================================
+
+alias ..='cd ..'
+alias ...='cd ../../../'
+alias ....='cd ../../../../'
+alias .....='cd ../../../../../'
+
+# ============================================================================
+# FILE SAFETY ALIASES
+# ============================================================================
+
+# Safer rm per-OS
+if [ "$IS_MACOS" -eq 1 ]; then
+  # Use trash if available, otherwise interactive rm
+  command -v trash >/dev/null && alias rm='trash' || alias rm='rm -i'
+else
+  alias rm='rm -I --preserve-root'  # GNU coreutils
+fi
+
+# Confirmation for destructive operations
+alias mv='mv -i'
+alias cp='cp -i'
+
+# ============================================================================
+# LS FAMILY ALIASES
+# ============================================================================
+
+# The 'ls' family - comprehensive listing aliases
+alias l='ls -1'                 # one file per line
+alias la='ls -Al'               # show hidden files
+alias ll='ls -l'                # long format
+alias lk='ls -lSr'              # sort by size, smallest first
+alias lc='ls -lcr'              # sort by change time
+alias lu='ls -lur'              # sort by access time
+alias lr='ls -lR'               # recursive ls
+alias lt='ls -ltr'              # sort by date, oldest first
+alias tree='tree -Csu'          # nice alternative to 'ls'
+
+# Platform-specific ls aliases (base ls behavior)
+if [ "$IS_MACOS" -eq 1 ]; then
+  alias ls='ls -G'              # macOS color
+  alias lm='ls -al | less'      # pipe through 'less'
+  # Prefer mvim on macOS
+  alias gvim='mvim'
+elif [ "$IS_LINUX" -eq 1 ]; then
+  alias ls='ls -hF --color'     # Linux color + human-readable
+  alias lm='ls -al --color=none | less'  # pipe through 'less'
+  alias lx='ls -lXB'            # sort by extension (GNU ls only)
+fi
+
+# ============================================================================
+# UTILITY ALIASES
+# ============================================================================
+
+alias genpass="openssl rand -base64 20"
+alias nowdate='date +"%Y-%m-%d"'
+alias ping="ping -c 5"
+alias ports='netstat -tulanp'
+alias sha="shasum -a 256"
+alias untar="tar xvf"
+alias free='free -m'
+
+# ============================================================================
+# EDITOR ALIASES
+# ============================================================================
+
+alias vi='vim'
+alias vimo='vim -O'
+
+# ============================================================================
+# DEVELOPMENT ALIASES
+# ============================================================================
+
+alias dpaste="curl -F 'content=<-' https://dpaste.de/api/"
+alias notes='vim ~/notes/notes-$(date +'%Y%m%d').md'
+
+# Git dotfiles management
+alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+
+# Pretty git log
+alias git_log="git log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+# Shortcut to display the url config of remote repo in a git root
+alias git_remotes="grep -A 2 \"\[remote\" .git/config|grep -v fetch|sed \"s/\[remote \\\"//\"|sed ':a;N;\$!ba;s/\"\]\n\s*url = /\t/g'"
+
+# iPython with scientific stack
+alias ipy='ipython -pylab -p scipy --editor="gvim"'
+
+# ============================================================================
+# SYSTEM ADMINISTRATION
+# ============================================================================
+
+# Get error messages from journalctl (Linux)
+alias jctl="journalctl -p 3 -xb"
+
+# ============================================================================
+# SECURITY & CRYPTO
+# ============================================================================
+
+# GPG encryption
+alias gpg-check="gpg2 --keyserver-options auto-key-retrieve --verify"
+alias gpg-retrieve="gpg2 --keyserver-options auto-key-retrieve --receive-keys"
+
+# ============================================================================
+# MEDIA & DOWNLOADS
+# ============================================================================
+
+alias yt-best="yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'"
+
+# ============================================================================
+# SHELL CONFIGURATION
+# ============================================================================
+
+alias rechoose_prompt='CHOOSE_PROMPT_ALREADY_SET=0; choose_prompt'
+
+# History aliases (primarily for zsh, but work in bash too)
+alias hist="history"
+
+# ============================================================================
+# ADAPTIVE HEAD/TAIL
+# ============================================================================
+
+# Changes the default head/tail behaviour to output x lines,
+# where x is the number of lines currently displayed on your terminal
+alias head='head -n $((${LINES:-$(tput lines 2>/dev/null||echo -n 12)} - 2))'
+alias tail='tail -n $((${LINES:-$(tput lines 2>/dev/null||echo -n 12)} - 2))'
+
+# ============================================================================
+# MODERN TOOL INTEGRATIONS
+# ============================================================================
+
+# Use modern tools if available, with graceful fallbacks
+command -v bat >/dev/null && alias cat='bat -pp'
+command -v eza >/dev/null && alias ls='eza -F' || true  # only override if eza exists
+
+# ============================================================================
+# PLATFORM-SPECIFIC ALIASES
+# ============================================================================
+
+if [ "$IS_MACOS" -eq 1 ]; then
+  # macOS specific aliases
+  alias fnd='open -a Finder'
+  alias gitx='open -a GitX'
+  alias grp='grep -RIi'
+
+  # Docker shortcuts
+  alias dm='docker-machine'
+  alias dc='docker-compose'
+  alias dk='docker'
+  alias dn='docker network'
+fi
+
+if [ "$IS_LINUX" -eq 1 ]; then
+  # Linux specific aliases
+  alias apt='sudo apt-get'
+  alias cs='sudo apt-cache search'
+  alias pacman='sudo pacman'
+  alias pac='sudo pacman'
+
+  # Add an "alert" alias for long running commands
+  # Usage: sleep 10; alert
+  alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+  # Enhanced time command with detailed output
+  alias time='/usr/bin/time -f "Program: %C\nTotal time: %E\nUser Mode (s) %U\nKernel Mode (s) %S\nCPU: %P"'
+fi
+
+# ============================================================================
+# COMMENTED OUT (VNC - uncomment if needed)
+# ============================================================================
+#alias vncstart='vncserver :12 -geometry 3320x965 -depth 16  -AlwaysShared'
+#alias vncstop='vncserver -kill :12'

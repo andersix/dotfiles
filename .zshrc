@@ -29,34 +29,23 @@
 # return if non-interactive
 [[ -o interactive ]] || return
 
-export HOSTNAME=$(hostname)
+HOSTNAME=$(hostname)
+export HOSTNAME
 
-# OSX Homebrew config (https://brew.sh/)
-# {{{
-if [[ "$OSTYPE" == darwin* ]]; then
-  export HOMEBREW_PREFIX="/opt/homebrew";
-  export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-  export HOMEBREW_REPOSITORY="/opt/homebrew";
-  export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}";
-  export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:";
-  export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
-  export HOMEBREW_NO_ANALYTICS=1
-  if type brew &>/dev/null
-  then
-    FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-
-    autoload -Uz compinit
-    compinit
-  fi
+# Homebrew setup is done in .zprofile (login shells)
+# Completion setup for Homebrew zsh functions
+if [ "$IS_MACOS" -eq 1 ] && type brew &>/dev/null; then
+  # Cache brew --prefix for performance (it's slow ~100-200ms)
+  BREW_PREFIX=$(brew --prefix)
+  FPATH="$BREW_PREFIX/share/zsh/site-functions:${FPATH}"
+  unset BREW_PREFIX
 fi
-# }}}
 
 # Enable colors and change prompt:
 autoload -U colors && colors
 
 # Completion (compinit with caching)
-# Safe compdump path under XDG
-: ${XDG_CACHE_HOME:="$HOME/.cache"}
+# XDG variables are set in .zprofile
 export ZSH_COMPDUMP="$XDG_CACHE_HOME/zsh/zcompdump"
 mkdir -p "${ZSH_COMPDUMP:h}"
 autoload -Uz compinit
@@ -111,7 +100,7 @@ bindkey '^e' edit-command-line
 
 # History (XDG-aware)
 # {{{
-: ${XDG_STATE_HOME:="$HOME/.local/state"}
+# XDG variables are set in .zprofile
 # do not permits to recall dangerous commands in bash history
 export HISTIGNORE='&:[bf]g:exit:*>|*:*rm*-rf*'
 unset HISTFILESIZE
@@ -137,160 +126,38 @@ alias hist="history"
 
 
 # Linux specific config {{{
-if [[ "$OSTYPE" == linux-gnu ]]; then
+if [ "$IS_LINUX" -eq 1 ]; then
   export TERM=xterm-256color
   #export TERM=xterm-direct  # seems to work after installing "ncurses-term"
   #export TERM=xterm
   export COLORTERM=truecolor
-  alias ls='ls -hF --color'       # add colors for filetype recognition
-  alias lm='ls -al --color=none|less'  # pipe through 'less'
-  alias lx='ls -lXB'              # sort by extension
-
-#  # Changing "ls" to "exa"
-#  if [[ -e /usr/bin/exa ]]; then
-#   # exa hack to make it behave like "ls" with -t
-#   function ls() {
-#       if [ "$1" = "-ltr" ]; then
-#           exa -lsnew "${@:2}"
-#       elif [ "$1" = "-lrt" ]; then
-#           exa -lsnew "${@:2}"
-#       else
-#           exa "$@"
-#       fi
-#   }
-#    #alias ls='exa -a --color=always --group-directories-first' # my preferred listing
-#    alias ll='exa -la --color=always --group-directories-first'  # long format
-#    #alias lt='exa -aT --color=always --group-directories-first' # tree listing
-#    alias l.='exa -a | egrep "^\."'
-#  fi
-
-  alias time='/usr/bin/time -f "Program: %C\nTotal time: %E\nUser Mode (s) %U\nKernel Mode (s) %S\nCPU: %P"'
-fi
-
-# OSX specific config {{{
-if [[ "$OSTYPE" == darwin* ]]; then
-  export TERM=xterm-256color
-  export COLORTERM=truecolor
-  alias lm='ls -al |less'  # pipe through 'less'
-  alias ls='ls -G'
-  alias gvim='mvim'  # install mvim from macports
 fi
 # }}}
 
-# The 'ls' family
-alias l='ls -1'
-alias la='ls -Al'               # show hidden files
-alias lk='ls -lSr'              # sort by size
-alias lc='ls -lcr'              # sort by change time
-alias lu='ls -lur'              # sort by access time
-alias lr='ls -lR'               # recursive ls
-alias lt='ls -ltr'              # sort by date
-alias ll='ls -l'
-alias tree='tree -Csu'          # nice alternative to 'ls'
-
-# changes the default head/tail behaviour to output x lines,
-# where x is the number of lines currently displayed on your terminal
-alias head='head -n $((${LINES:-`tput lines 2>/dev/null||echo -n 12`} - 2))'
-alias tail='tail -n $((${LINES:-`tput lines 2>/dev/null||echo -n 12`} - 2))'
-
-# If the output is smaller than the screen height is smaller,
-# less will just cat it
-# + support ANSI colors
-export LESS="-FX -R"
-
-# Syntax coloring with pygments in less, when opening source files
-# MacOS: brew install pygments
-#export LESSOPEN='|~/lessfilter.sh %s'
-#export LESSOPEN='|~/code/dotfiles/lessfilter.sh %s'
-if command -v pygmentize >/dev/null 2>&1; then
-  export LESSOPEN='|pygmentize -O style=solarized-dark -g %s'
+# OSX specific config {{{
+if [ "$IS_MACOS" -eq 1 ]; then
+  export TERM=xterm-256color
+  export COLORTERM=truecolor
 fi
+# }}}
 
+# Shared configuration files {{{
+# All shared aliases and environment settings in ~/.shell_aliases
+[[ -r "$HOME/.shell_aliases" ]] && source "$HOME/.shell_aliases"
 
-function psg() {
-    #        do not show grep itself           color matching string              color the PID
-    ps aux | grep -v grep | grep --ignore-case --color=always $1 | colout '^\S+\s+([0-9]+).*$' blue
-}
+# All shared functions in ~/.shell_functions
+[[ -r "$HOME/.shell_functions" ]] && source "$HOME/.shell_functions"
 
-
-
-# default editor
-export EDITOR="${EDITOR:-vim}"
-export VISUAL="${VISUAL:-gvim --nofork}"
-
-# ipython shell with correct default apps
-alias ipy='ipython -pylab -p scipy --editor="gvim"'
-
-# shortcut to display the url config of remote repo in a git root
-alias git_remotes="grep -A 2 \"\[remote\" .git/config|grep -v fetch|sed \"s/\[remote \\\"//\"|sed ':a;N;\$!ba;s/\"\]\n\s*url = /\t/g'"
-
-# Pretty git log
-alias git_log="git log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-
-# Take a snapshot of the current git repository and zip it.
-# The archive file name has the current date in its name.
-function git_archive()
-{
-    last_commit_date=$(git log -1 --format=%ci | awk '{print $1"_"$2;}' | sed "s/:/-/g")
-    project=$(basename $(pwd))
-    name=${project}_${last_commit_date}
-    git archive --prefix=$name/ --format zip master > $name.zip
-    echo $name.zip
-}
-
-
-# Intuitive calculator on the command line
-# $ = 3 × 5.1 ÷ 2
-# 7,65
-calc() {
-    calc="$@"
-    # We can use the unicode signs × and ÷
-    calc="${calc//×/*}"
-    calc="${calc//÷//}"
-    echo -e "$calc\nquit" | gcalccmd | sed 's/^> //g'
-}
-
-# Global aliases  {{{
-# Aliases & functions (XDG layout)
+# Optional: XDG layout additional configs
 for f in "$XDG_CONFIG_HOME/shell"/{aliases,functions,completion}.sh; do
   [[ -r "$f" ]] && source "$f"
 done
-[[ -r "$HOME/.bash_aliases" ]] && source "$HOME/.bash_aliases"   # share aliases
 # }}}
 
-# alias I want to learn
-function h()
-{
-echo "la : show hidden files"
-echo "lx : sort by extension"
-echo "lk : sort by size"
-echo "lc : sort by change time"
-echo "lu : sort by access time"
-echo "lr : recursive ls"
-echo "lt : sort by date"
-echo "lm : pipe through 'less'"
-echo "md : mkdir, cd"
-}
-
-# Do ripgrep then puts fuzzy searching in the resulting files+text on top while showing context:
-function frg {
-    result=$(rg --ignore-case --color=always --line-number --no-heading "$@" |
-      fzf --ansi \
-          --color 'hl:-1:underline,hl+:-1:underline:reverse' \
-          --delimiter ':' \
-          --preview "bat --color=always {1} --theme='Solarized (light)' --highlight-line {2}" \
-          --preview-window 'up,60%,border-bottom,+{2}+3/3,~3')
-    file=${result%%:*}
-    linenumber=$(echo "${result}" | cut -d: -f2)
-    if [[ -n "$file" ]]; then
-            $EDITOR +"${linenumber}" "$file"
-    fi
-}
-
-# Tools: fzf, bat/eza fallbacks
+# ZSH-specific integrations and tools {{{
+# fzf key-bindings for zsh
 command -v fzf >/dev/null   && [[ -r /usr/share/fzf/key-bindings.zsh ]] && source /usr/share/fzf/key-bindings.zsh
-command -v bat >/dev/null   && alias cat='bat -pp'
-command -v eza >/dev/null   && alias ls='eza -F' || alias ls='ls -GF'   # macOS ls colors
+# }}}
 
 # Suggests commands as you type based on history and completions.
 #   https://github.com/zsh-users/zsh-autosuggestions

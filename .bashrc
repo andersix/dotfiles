@@ -3,12 +3,15 @@
 case $- in *i*) ;; *) return ;; esac
 
 #Global options {{{
-export HOSTNAME=$(hostname)
+HOSTNAME=$(hostname)
+export HOSTNAME
 export SHELL_SESSION_HISTORY=0
 export HISTFILESIZE=
 export HISTSIZE=""
 export HISTCONTROL=ignoredups:ignorespace
-export PAGER=less
+# Use XDG for history file (XDG variables set in .shell_aliases)
+export HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/bash/history"
+mkdir -p "${HISTFILE%/*}"  # Create directory if it doesn't exist
 shopt -s checkwinsize
 shopt -s progcomp
 #make sure the history is updated at every command
@@ -68,94 +71,24 @@ fi
 ## complete -F _gcomp g
 ## # }}}
 
-# Global aliases  {{{
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
+# Shared configuration files {{{
+# All shared aliases and environment settings in ~/.shell_aliases
+if [ -f ~/.shell_aliases ]; then
+    . ~/.shell_aliases
+fi
+
+# All shared functions in ~/.shell_functions
+if [ -f ~/.shell_functions ]; then
+    . ~/.shell_functions
 fi
 # }}}
 
-# Global functions (aka complex aliases) {{{
-function findf {
-  find . -type f | grep -v .svn | grep -v .git | grep -i $1
-}
-
-# print only column x of output
-function col {
-  awk -v col=$1 '{print $col}'
-}
-
-# skip first x words in line
-function skip {
-    n=$(($1 + 1))
-    cut -d' ' -f$n-
-}
-
-# cross-platform search/replace (BSD vs GNU sed)
-function sr {
-  if [[ "$(uname)" == "Darwin" ]]; then
-    find . -type f -exec sed -i '' "s/$1/$2/g" {} +
-  else
-    find . -type f -exec sed -i "s/$1/$2/g" {} +
-  fi
-}
-
-# shows last modification date for trunk and $1 branch
-function glogm {
-  echo master $(git log -u master $2 | grep -m1 Date:)
-  echo $1 $(git log -u $1 $2 | grep -m1 Date:)
-}
-
-# git rename current branch and backup if overwritten
-function gmvb {
-  curr_branch_name=$(git branch | grep \* | cut -c 3-);
-  if [ -z $(git branch | cut -c 3- | grep -x $1) ]; then
-    git branch -m $curr_branch_name $1
-  else
-    temp_branch_name=$1-old-$RANDOM;
-    echo target branch name already exists, renaming to $temp_branch_name
-    git branch -m $1 $temp_branch_name
-    git branch -m $curr_branch_name $1
-  fi
-}
-
-# git search for extension $1 and occurrence of string $2
-function gfe {
-    git ls-files "*.$1" | xargs grep -ni "$2" | less -R
-}
-
-#open with vim from a list of files, nth one (vim file number x)
-function vfn {
-  last_command=$(history 2 | head -1 | cut -d" " -f2- | cut -c 2-);
-  vim $($last_command | head -$1 | tail -1)
-}
-
-#open a scratch file in Dropbox
-function sc {
-  gvim ~/Dropbox/$(openssl rand -base64 10 | tr -dc 'a-zA-Z').txt
-}
-function scratch {
-  gvim ~/Dropbox/$(openssl rand -base64 10 | tr -dc 'a-zA-Z').txt
-}
+# Bash-specific functions can go here {{{
 # }}}
-
-# Do ripgrep then puts fuzzy searching in the resulting files+text on top while showing context:
-function frg {
-  result=`rg --ignore-case --color=always --line-number --no-heading "$@" |
-    fzf --ansi \
-        --color 'hl:-1:underline,hl+:-1:underline:reverse' \
-        --delimiter ':' \
-        --preview "bat --color=always {1} --theme='Solarized (light)' --highlight-line {2}" \
-        --preview-window 'up,60%,border-bottom,+{2}+3/3,~3'`
-  file="${result%%:*}"
-  linenumber=`echo "${result}" | cut -d: -f2`
-  if [ ! -z "$file" ]; then
-          $EDITOR +"${linenumber}" "$file"
-  fi
-}
 
 
 # Linux specific config {{{
-if [ $(uname) == "Linux" ]; then
+if [ "$IS_LINUX" -eq 1 ]; then
   export TERM=xterm-256color
   #shopt -s autocd
   [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -163,25 +96,10 @@ if [ $(uname) == "Linux" ]; then
   # enable color support of ls and also add handy aliases
   if [ -x /usr/bin/dircolors ]; then
       test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-      alias ls='ls -hp --color=always'
       alias grep='grep --color=auto'
       alias fgrep='fgrep --color=auto'
       alias egrep='egrep --color=auto'
   fi
-
-  # Add an "alert" alias for long running commands.  Use like so: sleep 10; alert
-  alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
-  #apt aliases
-  alias apt='sudo apt-get'
-  alias cs='sudo apt-cache search'
-  alias pacman='sudo pacman'
-  alias pac='sudo pacman'
-
-  alias ls='ls -hp --color'
-  alias ll='ls -l --color'
-  alias la='ls -al --color'
-  alias less='less -R'
 fi
 # }}}
 
@@ -193,49 +111,22 @@ fi
 
 # Synopsys Verdi {{{
 if [ -f ~/verdi_custom.tcl ]; then
-	export NOVAS_AUTO_SOURCE='~/verdi_custom.tcl'
+	export NOVAS_AUTO_SOURCE="$HOME/verdi_custom.tcl"
 fi
 # }}}
 
 # OSX specific config {{{
-if [ $(uname) == "Darwin" ]; then
+if [ "$IS_MACOS" -eq 1 ]; then
   export TERM=xterm-256color
   export HOMEBREW_NO_ANALYTICS=1
 
-  #aliases {{{
-  alias ls='ls -G'
-  alias ll='ls -ltr'
-  alias la='ls -al'
-  alias less='less -R'
-  alias fnd='open -a Finder'
-  alias gitx='open -a GitX'
-  alias grp='grep -RIi'
-  alias dm='docker-machine'
-  alias dc='docker-compose'
-  alias dk='docker'
-  alias dn='docker network'
-  # }}}
-
-  #open macvim
-  # install macvim from homebrew if not already
-  function gvim {
-    if [ -e $1 ];
-      then open -a MacVim $@;
-      else touch $@ && open -a MacVim $@;
-    fi
-  }
-  #open visual studio code
-  function vsc {
-    if [ -e "$1" ];
-      then open -a "Visual Studio Code" "$@";
-      else touch "$@" && open -a "Visual Studio Code" "$@";
-    fi
-  }
-
   #homebrew git autocompletions {{{
-  if [ -f `brew --prefix`/etc/bash_completion.d/git-completion.bash ]; then
-    . `brew --prefix`/etc/bash_completion.d/git-completion.bash
+  # Cache brew --prefix for performance (it's slow ~100-200ms)
+  BREW_PREFIX=$(brew --prefix)
+  if [ -f "$BREW_PREFIX/etc/bash_completion.d/git-completion.bash" ]; then
+    . "$BREW_PREFIX/etc/bash_completion.d/git-completion.bash"
   fi
+  unset BREW_PREFIX
   #}}}
 
   #Pipe2Eval folder for vim extension
@@ -244,18 +135,6 @@ if [ $(uname) == "Darwin" ]; then
 #  export WORKON_HOME="~/dev/envs"
 #  export VIRTUALENV_USE_DISTRIBUTE=1
 #  [[ -n "/usr/local/bin/virtualenvwrapper.sh" ]] && source virtualenvwrapper.sh
-fi
-# }}}
-
-# MINGW32_NT-5.1 (winxp) specific config {{{
-if [ $(uname) == "MINGW32_NT-5.1" ]; then
-  alias ls='ls --color'
-  alias ll='ls -l --color'
-  alias la='ls -al --color'
-  alias less='less -R'
-  alias grep='grep --color=auto'
-  alias fgrep='fgrep --color=auto'
-  alias egrep='egrep --color=auto'
 fi
 # }}}
 
@@ -286,16 +165,6 @@ fi
 #    start_agent;
 #fi
 # }}}
-
-# {{{
-# I've setup pip3 to require a python virtualenv, so running pip3 outside a virtualenv will fail.
-# To update or install global python packages, use the shell command gpip, i.e.,
-#    gpip install --upgrade pip setuptools wheel virtualenv
-# }}}
-gpip(){
-   PIP_REQUIRE_VIRTUALENV="0" pip3 "$@"
-}
-
 
 # Get Environment Modules {{{
 if [ -f /usr/share/Modules/init/bash ]; then
