@@ -1,0 +1,67 @@
+# Dotfiles Repository .gitignore
+# This file prevents accidentally adding sensitive files to your dotfiles repository.
+# It works as a safety valve alongside `dotfiles config status.showUntrackedFiles no`
+
+# Credentials and secrets
+.env
+.env.*
+.netrc
+.npmrc
+.pypirc
+.cargo/credentials
+.docker/config.json
+
+# SSH and GPG
+.ssh/id_*
+.ssh/*.pem
+.ssh/*.key
+.ssh/known_hosts*
+.ssh/authorized_keys
+.gnupg/
+
+# Cloud provider credentials
+.aws/credentials
+.aws/config
+.azure/
+.config/gcloud/
+.config/doctl/
+
+# Password managers and keychains
+.password-store/
+.local/share/keyrings/
+.local/share/keyring/
+
+# Shell history (if not using XDG paths)
+.bash_history
+.zsh_history
+.python_history
+.node_repl_history
+.lesshst
+
+# Database client history
+.mysql_history
+.psql_history
+.rediscli_history
+.sqlite_history
+
+# Browser data
+.mozilla/
+.config/google-chrome/
+.config/chromium/
+
+# Common sensitive files
+credentials.json
+**/secrets.yaml
+**/secrets.yml
+**/secrets.json
+*.key
+*.pem
+
+# macOS specific
+.Trash/
+.CFUserTextEncoding
+
+# Cache and temporary files (generally shouldn't be in dotfiles)
+.cache/
+.local/share/Recently Used.xbel
+.DS_Store

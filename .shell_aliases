@@ -93,8 +93,19 @@ alias tree='tree -Csu'          # nice alternative to 'ls'
 
 # Platform-specific ls aliases (base ls behavior)
 if [ "$IS_MACOS" -eq 1 ]; then
-  alias ls='ls -G'              # macOS color
-  alias lm='ls -al | less'      # pipe through 'less'
+  # If GNU coreutils is installed (brew install coreutils), prefer gls
+  if command -v gls >/dev/null 2>&1; then
+    alias ls='gls -hF --color'    # GNU ls with colors
+    alias lm='gls -al --color=none | less'
+    alias lx='gls -lXB'           # sort by extension (GNU ls only)
+    # Load dircolors for GNU ls
+    if command -v gdircolors >/dev/null 2>&1; then
+      test -r ~/.dircolors && eval "$(gdircolors -b ~/.dircolors)" || eval "$(gdircolors -b)"
+    fi
+  else
+    alias ls='ls -G'              # Fallback to BSD ls with basic colors
+    alias lm='ls -al | less'
+  fi
   # Prefer mvim on macOS
   alias gvim='mvim'
 elif [ "$IS_LINUX" -eq 1 ]; then

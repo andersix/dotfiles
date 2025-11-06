@@ -129,6 +129,14 @@ if [ "$IS_MACOS" -eq 1 ]; then
   unset BREW_PREFIX
   #}}}
 
+  # Load dircolors for GNU ls (if coreutils is installed)
+  if command -v gdircolors >/dev/null 2>&1; then
+    test -r ~/.dircolors && eval "$(gdircolors -b ~/.dircolors)" || eval "$(gdircolors -b)"
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+  fi
+
   #Pipe2Eval folder for vim extension
   export PIP2EVAL_TMP_FILE_PATH=/tmp/shms
 

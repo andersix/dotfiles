@@ -131,6 +131,11 @@ if [ "$IS_LINUX" -eq 1 ]; then
   #export TERM=xterm-direct  # seems to work after installing "ncurses-term"
   #export TERM=xterm
   export COLORTERM=truecolor
+
+  # Load dircolors for LS_COLORS
+  if command -v dircolors >/dev/null 2>&1; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  fi
 fi
 # }}}
 

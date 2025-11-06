@@ -1,62 +1,96 @@
 [user]
-	name = Anders Knudsen
-	email = 
+    name = Anders Knudsen
+    email =
+
 [core]
-        editor = vim
-        excludesfile = ~/.gitignore_global
-        pager = less -x4
-[push]
-	default = simple
-        # this push default makes "git push" => "git push origin <currently active branch>"
-        # See: http://www.fleekitsolutions.com/git/difference-between-push-default-matching-simple
+    editor = vim
+    excludesfile = ~/.gitignore_global
+    pager = less -x4
+
 [init]
     defaultBranch = main
-[diff]
-	tool = gvimdiff
-[difftool]
-	prompt = false
-[color]
-        branch = auto
-        diff = auto
-        status = auto
-        interactive = auto
-	ui = true
-[color "branch"]
-        current = red reverse
-        local = blue
-        remote = green
-[color "diff"]
-        meta = yellow
-        frag = magenta
-        old = red bold
-        new = green
-        plain = white
-[color "status"]
-        added = yellow
-        changed = cyan
-        untracked = magenta
-        deleted = red
-	header = white normal dim
-[alias]
-        # NOTE: grow your aliases organically so you know what they're doing...
-        #
-        stat = status
-        #
-        # show diffs between staged and repo:
-        diffs = diff --staged
-        #
-        # nicely formatted git logs (git lg; git ls; git ll):
-        lg = log --graph --abbrev-commit --oneline --decorate=full --date=relative \
-        --format=format:'%C(bold blue)%h%C(reset)          \
-        - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) \
-        %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
-        #lg = log --graph --pretty=format:'%C(auto,red bold)%h%C(auto,reset) -%C(auto,yellow)%d%C(auto,reset) %s %C(auto,green)(%cr) %C(auto,bold blue)<%an>%C(auto,reset)' --abbrev-commit
-        lga = "!git lg --all $*"
 
-        ls = log --pretty=format:"%C(green)%h\\ %C(yellow)[%ad]%Cred%d\\ %Creset%s%Cblue\\ [%an]" --decorate --date=relative
-        ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [a:%an,c:%cn]" --decorate --numstat
-        #
-        # Ammend previous commit --
-        # Take all your modified files, uncommit the changes, and add them
-        # to the previous commit, keeping the same commit message:
-        caa = commit -a --amend -C HEAD
+[push]
+    default = current
+    # Push the current branch to a branch of the same name on the remote
+
+[fetch]
+    prune = true
+    # Automatically remove remote-tracking references that no longer exist on the remote
+
+[diff]
+    tool = gvimdiff
+
+[difftool]
+    prompt = false
+
+[merge]
+    tool = vimdiff
+    conflictstyle = diff3
+    # Show common ancestor in merge conflicts for better context
+
+[rerere]
+    enabled = true
+    # Reuse recorded resolution of conflicted merges
+
+[color]
+    ui = true
+    # Enable colors in output (branch, diff, status, etc.)
+
+[color "branch"]
+    current = red reverse
+    local = blue
+    remote = green
+
+[color "diff"]
+    meta = yellow
+    frag = magenta
+    old = red bold
+    new = green
+    plain = white
+
+[color "status"]
+    added = yellow
+    changed = cyan
+    untracked = magenta
+    deleted = red
+    header = white normal dim
+
+[alias]
+    # NOTE: grow your aliases organically so you know what they're doing...
+
+    # Quick shortcuts
+    co = checkout
+    br = branch
+    ci = commit
+    st = status
+    stat = status
+
+    # Show diffs between staged and repo
+    diffs = diff --staged
+
+    # Nicely formatted git logs (git lg; git ls; git ll)
+    lg = log --graph --abbrev-commit --oneline --decorate=full --date=relative \
+    --format=format:'%C(bold blue)%h%C(reset)          \
+    - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) \
+    %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+
+    lga = "!git lg --all $*"
+
+    ls = log --pretty=format:"%C(green)%h\\ %C(yellow)[%ad]%Cred%d\\ %Creset%s%Cblue\\ [%an]" --decorate --date=relative
+
+    ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [a:%an,c:%cn]" --decorate --numstat
+
+    # Amend previous commit
+    # Take all your modified files, uncommit the changes, and add them
+    # to the previous commit, keeping the same commit message
+    caa = commit -a --amend -C HEAD
+
+    # Undo last commit but keep changes in working directory
+    undo = reset HEAD~1 --mixed
+
+    # Show branches sorted by last commit date
+    recent = branch --sort=-committerdate
+
+    # Clean up local branches that have been merged
+    cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branch -d"
