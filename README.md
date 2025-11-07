@@ -11,9 +11,9 @@ This repository serves two purposes:
 2. **My Implementation**: My personal configuration files managed using this methodology (cross-platform bash/zsh, vim, tmux, Starship prompt, XDG compliance, and modern CLI tool integration).
 
 **Choose your path:**
-- **Want to learn the methodology with your own dotfiles?** → See [Option A](#option-a-learn-the-methodology-start-from-scratch)
-- **Want to use my dotfiles as-is?** → See [Option B](#option-b-use-my-dotfiles-exact-copy)
-- **Want to fork and customize my dotfiles?** → See [Option C](#option-c-fork-and-customize)
+- **Want to learn the methodology with your own dotfiles?** → See [Option A](#option-a-learn-the-methodology-start-from-scratch) in Part 1 below.
+- **Want to use my dotfiles as-is?** → See [Option B](#option-b-use-my-dotfiles-exact-copy) in Part 2 below.
+- **Want to fork and customize my dotfiles?** → See [Option C](#option-c-fork-and-customize) in Part 2 below.
 
 ---
 
