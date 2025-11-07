@@ -10,7 +10,9 @@ This repository serves two purposes:
 
 2. **My Implementation**: My personal configuration files managed using this methodology (cross-platform bash/zsh, vim, tmux, Starship prompt, XDG compliance, and modern CLI tool integration).
 
-**Choose your path:**
+**Read Part 1 first so you understand the methodology**
+
+**Then, choose your path:**
 - **Want to learn the methodology with your own dotfiles?** → See [Option A](#option-a-learn-the-methodology-start-from-scratch) in Part 1 below.
 - **Want to use my dotfiles as-is?** → See [Option B](#option-b-use-my-dotfiles-exact-copy) in Part 2 below.
 - **Want to fork and customize my dotfiles?** → See [Option C](#option-c-fork-and-customize) in Part 2 below.
@@ -32,7 +34,7 @@ The bare repository methodology uses Git directly to track files in `$HOME` with
 - Easy replication to new machines
 - Works with any shell or configuration files
 
-## Prerequisites (Methodology)
+## Prerequisites
 
 **Required:**
 - `git`
@@ -226,6 +228,7 @@ You're done! Now manage your dotfiles using the `dotfiles` command instead of `g
 - **Linux**: Your distro's package manager (apt, pacman, dnf, etc.)
 
 ## Choose Your Installation Path
+- Option B or C below...
 
 > **Important for Options B & C:** After installation, you **must** configure git to hide untracked files:
 > ```sh
