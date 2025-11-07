@@ -212,6 +212,7 @@ You're done! Now manage your dotfiles using the `dotfiles` command instead of `g
 - **Prompt auto-detection**: Automatically uses Starship if available, falls back to Liquidprompt/Spaceship
 - **XDG compliance**: Shell history and cache files stored in XDG directories to keep `$HOME` clean
 - **Modular vim config**: Plugin definitions separate from main `.vimrc`, individual plugin configs in dedicated files
+- **Git submodules**: Alacritty themes managed as a submodule for easy updates
 
 ## Prerequisites (My Dotfiles)
 
@@ -273,7 +274,13 @@ dotfiles config status.showUntrackedFiles no
 
 **Note:** The `dotfiles` alias is already included in my dotfiles (`.shell_aliases`), so it will persist after you restart your shell.
 
-#### 5. Reload your shell
+#### 5. Initialize submodules
+```sh
+# Initialize and update submodules (for Alacritty themes)
+dotfiles submodule update --init --recursive
+```
+
+#### 6. Reload your shell
 ```sh
 # For bash:
 source ~/.bashrc
@@ -308,7 +315,13 @@ dotfiles config status.showUntrackedFiles no
 
 **Note:** The `dotfiles` alias is already included in the dotfiles (`.shell_aliases`), so it will persist after you restart your shell.
 
-#### 4. Start customizing
+#### 4. Initialize submodules
+```sh
+# Initialize and update submodules (for Alacritty themes)
+dotfiles submodule update --init --recursive
+```
+
+#### 5. Start customizing
 ```sh
 # Edit files as needed
 vim ~/.bashrc
@@ -611,7 +624,17 @@ dotfiles push
 **Updating dotfiles on another machine:**
 ```sh
 dotfiles pull
+dotfiles submodule update --init --recursive  # Update submodules if needed
 source ~/.bashrc  # or source ~/.zshrc
+```
+
+**Updating submodules (like Alacritty themes):**
+```sh
+# Update to latest theme versions
+dotfiles submodule update --remote
+dotfiles add .config/alacritty/themes
+dotfiles commit -m "Update Alacritty themes"
+dotfiles push
 ```
 
 **Experimenting with changes:**
