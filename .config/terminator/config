@@ -1,7 +1,7 @@
 [global_config]
   focus = system
   title_use_system_font = False
-  title_font = Fira Code 9
+  title_font = FiraCode Nerd Font 11
   title_transmit_bg_color = "#be5046"
 [keybindings]
 [profiles]

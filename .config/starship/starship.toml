@@ -22,8 +22,9 @@ truncation_length = 10
 truncation_symbol = '../'
 truncate_to_repo = true
 
-[directory.substitutions]
-'/global/projects/pequin' = 'pequin'
+# [directory.substitutions]
+# Add machine-specific path substitutions here if needed
+# Example: '/path/to/project' = 'project'
 
 [character]
 success_symbol = '[⟩](bold green)'

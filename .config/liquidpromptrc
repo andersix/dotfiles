@@ -1,4 +1,4 @@
-# Show laptop batter level only if below 20%
+# Show laptop battery level only if below 20%
 LP_BATTERY_THRESHOLD=40
 # Show CPU load only if above 40%
 LP_LOAD_THRESHOLD=40
