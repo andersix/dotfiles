@@ -1,8 +1,9 @@
 " ALE settings
+" LSP handles linting for Python, C, C++ - ALE focuses on Verilog and formatting
 let g:ale_linters = {
-\   'python': ['flake8', 'pylint'],
-\   'c': ['gcc'],
-\   'cpp': ['gcc'],
+\   'python': [],
+\   'c': [],
+\   'cpp': [],
 \   'verilog': ['verilator'],
 \   'systemverilog': ['verilator'],
 \}
@@ -10,8 +11,8 @@ let g:ale_linters = {
 let g:ale_fixers = {
 \   '*': ['remove_trailing_lines', 'trim_whitespace'],
 \   'python': ['black', 'isort'],
-\   'c': ['clangtidy'],
-\   'cpp': ['clangtidy'],
+\   'c': ['clang-format'],
+\   'cpp': ['clang-format'],
 \}
 
 let g:ale_sign_error = '✘'

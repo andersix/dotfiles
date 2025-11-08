@@ -25,5 +25,3 @@ augroup MyGutentagsStatusLineRefresher
   autocmd User GutentagsUpdating call lightline#update()
   autocmd User GutentagsUpdated call lightline#update()
 augroup END
-
-let g:lightline = {'colorscheme': 'catppuccin_mocha'}

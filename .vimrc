@@ -55,6 +55,14 @@ set nofoldenable              " Start with all folds open
 set foldlevel=2               " When folding is enabled, fold at depth 2+
 " Enable folding with the spacebar
 nnoremap <space> za
+
+" Netrw (built-in file explorer) configuration
+let g:netrw_banner = 0        " Hide banner
+let g:netrw_liststyle = 3     " Tree view
+let g:netrw_browse_split = 4  " Open in previous window
+let g:netrw_altv = 1          " Open splits to the right
+let g:netrw_winsize = 25      " Width percentage
+nnoremap <leader>e :Lexplore<CR>
 " }}}
 
 " ============================================================================
@@ -101,44 +109,25 @@ match RedundantSpaces /\s\+$\| \+\ze\t\|\t/
 " ============================================================================
 " Cursor Settings {{{
 " ============================================================================
-" Define cursor colors
-hi bCursor guibg=#3498db
-hi gCursor guibg=#2ecc71
-hi pCursor guibg=#9240ea
-hi rCursor guibg=#e74c3c
-hi wCursor guibg=#e0e0e0
-hi yCursor guibg=#ffe100
+" Cursor shape configuration - simple and effective
+if has('nvim')
+  set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
+else
+  " Terminal cursor shape
+  let &t_SI = "\<Esc>[6 q"  " Insert mode - vertical bar
+  let &t_SR = "\<Esc>[4 q"  " Replace mode - underline
+  let &t_EI = "\<Esc>[2 q"  " Normal mode - block
 
-" Cursor shape configuration
-set guicursor=
-set guicursor+=c:blinkoff0-blinkon0-blinkwait0-hor20-gCursor
-set guicursor+=ci:blinkoff500-blinkon500-blinkwait10-ver25-gCursor
-set guicursor+=cr:blinkoff500-blinkon500-blinkwait10-block-yCursor
-set guicursor+=i:blinkoff500-blinkon500-blinkwait10-ver25-pCursor
-set guicursor+=n:blinkoff0-blinkon0-blinkwait0-block-yCursor
-set guicursor+=o:blinkoff500-blinkon500-blinkwait10-hor20-bCursor
-set guicursor+=r:blinkoff500-blinkon500-blinkwait10-block-yCursor
-set guicursor+=sm:blinkoff500-blinkon500-blinkwait10-block-yCursor
-set guicursor+=v:blinkoff500-blinkon500-blinkwait10-block-rCursor
-set guicursor+=ve:blinkoff500-blinkon500-blinkwait10-block-rCursor
-
-" Restore normal cursor style on exit
-augroup fix_cursor
-    au!
-    au VimLeave * set guicursor=a:hor20-yCursor-blinkoff500-blinkon500-blinkwait10
-augroup END
-
-" Terminal cursor shape
-let &t_SI = "\<Esc>[6 q"  " Insert mode - vertical bar
-let &t_SR = "\<Esc>[4 q"  " Replace mode - underline
-let &t_EI = "\<Esc>[2 q"  " Normal mode - block
-
-" Mac-specific cursor settings
-if has("mac")
-  let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-  let &t_SR = "\<Esc>]50;CursorShape=2\x7"
-  let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+  " Mac-specific cursor settings
+  if has("mac")
+    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+    let &t_SR = "\<Esc>]50;CursorShape=2\x7"
+    let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+  endif
 endif
+
+" Restore normal cursor on exit
+autocmd VimLeave * set guicursor=a:ver25-blinkwait700-blinkon400-blinkoff250
 " }}}
 
 " ============================================================================
@@ -152,7 +141,8 @@ augroup file_types
     autocmd!
     " Verilog/SystemVerilog
     autocmd BufRead,BufNewFile *.v,*.vh,*.sv,*.svi,*.svh set filetype=verilog_systemverilog
-    autocmd BufRead,BufNewFile *.v,*.vh,*.sv,*.svi,*.svh set expandtab tabstop=4 softtabstop=2 shiftwidth=2
+    " Verilog/SystemVerilog - consistent 4-space indentation
+    autocmd BufRead,BufNewFile *.v,*.vh,*.sv,*.svi,*.svh setlocal expandtab tabstop=4 softtabstop=4 shiftwidth=4
 
     " Liberty .lib files
     autocmd BufRead,BufNewFile *.lib set filetype=verilog_systemverilog
@@ -353,6 +343,17 @@ endfunction
 " Uncomment the line below to always load the ASIC module
 " source ~/.vim/modules/asic.vim
 " Or, run :LoadModule asic when you need ASIC functionality, without having it loaded all the time.
+" }}}
+
+" ============================================================================
+" Plugin Count Warning {{{
+" ============================================================================
+" Performance reminder to keep plugins lean
+if len(g:plugs) > 25
+  echohl WarningMsg
+  echo "Warning: " . len(g:plugs) . " plugins loaded. Consider reducing for better performance."
+  echohl None
+endif
 " }}}
 
 " vim: set foldmethod=marker foldlevel=0 ts=2 sts=2 sw=2 noet :

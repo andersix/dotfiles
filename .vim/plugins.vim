@@ -20,28 +20,20 @@ Plug 'christoomey/vim-tmux-navigator'
 
 " Git integration
 Plug 'tpope/vim-fugitive'
-Plug 'ludovicchabant/vim-lawrencium'
 Plug 'mhinz/vim-signify'  " Show git diff in the gutter
 
-" Languages and syntax
-Plug 'vhda/verilog_systemverilog.vim'
-Plug 'hdima/python-syntax'
-Plug 'zhuzhzh/verilog_emacsauto.vim'
+" Language support
+Plug 'vhda/verilog_systemverilog.vim', { 'for': ['verilog', 'systemverilog', 'verilog_systemverilog'] }
+Plug 'zhuzhzh/verilog_emacsauto.vim', { 'for': ['verilog', 'systemverilog', 'verilog_systemverilog'] }
 Plug 'vimtaku/hl_matchit.vim'
-Plug 'nvie/vim-flake8'
-Plug 'git://repo.or.cz/vcscommand'
+Plug 'vim-scripts/tcl.vim', { 'for': 'tcl' }
+Plug 'elzr/vim-json', { 'for': 'json' }
+Plug 'tpope/vim-markdown', { 'for': 'markdown' }
 Plug 'godlygeek/tabular'
-Plug 'tpope/vim-markdown'
-Plug 'elzr/vim-json'
 Plug 'tpope/vim-commentary'
-Plug 'vim-scripts/tcl.vim'  " Better TCL support
-Plug 'octol/vim-cpp-enhanced-highlight'  " Better C/C++ highlighting
 
 " Linting and syntax checking
 Plug 'dense-analysis/ale'  " Asynchronous linting for multiple languages
-
-" Formatting
-Plug 'rhysd/vim-clang-format'  " C/C++ formatting
 
 " Language Server Protocol
 Plug 'prabirshrestha/vim-lsp'  " Language Server Protocol support
@@ -52,40 +44,23 @@ Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'  " LSP source for asyncomplete
 
 " Code Navigation
-"Plug 'ludovicchabant/vim-gutentags'  " Automatic tag management
-Plug 'liuchengxu/vista.vim'  " Tag viewer for various languages
+Plug 'ludovicchabant/vim-gutentags'  " Automatic tag management
+Plug 'liuchengxu/vista.vim', { 'on': ['Vista', 'Vista!!'] }  " Tag viewer for various languages
 
 " UI enhancements
 Plug 'itchyny/lightline.vim'
-Plug 'preservim/nerdtree'
-Plug 'tmhedberg/SimpylFold'
-Plug 'Konfekt/FastFold'
-Plug 'junegunn/limelight.vim'
-Plug 'preservim/vim-pencil'
-Plug 'junegunn/goyo.vim'
 
 " Terminal Integration
-Plug 'voldikss/vim-floaterm'  " Floating terminal
+Plug 'voldikss/vim-floaterm', { 'on': ['FloatermNew', 'FloatermToggle'] }
 
-" FZF for fuzzy finding
+" Fuzzy finding
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-
-" ASIC-specific enhancements - Only loaded when needed via asic.vim module
-" Plug 'antoinemadec/vim-verilog-instance'  " UVM instance port connection helper
-
-" Mac-specific
-if has('mac')
-  Plug 'junegunn/vim-xmark'
-endif
+Plug 'junegunn/fzf.vim', { 'on': ['FZF', 'Files', 'Buffers', 'Rg', 'Lines', 'Tags'] }
 
 " Color themes
-Plug 'challenger-deep-theme/vim', { 'as': 'challenger-deep' }
-Plug 'morhetz/gruvbox'
-Plug 'nanotech/jellybeans.vim'
 Plug 'joshdick/onedark.vim'
-Plug 'NLKNguyen/papercolor-theme'
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
+Plug 'nanotech/jellybeans.vim'
 Plug 'altercation/vim-colors-solarized'
 Plug 'dracula/vim', { 'as': 'dracula' }
-Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 call plug#end()
