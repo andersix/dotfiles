@@ -345,15 +345,4 @@ endfunction
 " Or, run :LoadModule asic when you need ASIC functionality, without having it loaded all the time.
 " }}}
 
-" ============================================================================
-" Plugin Count Warning {{{
-" ============================================================================
-" Performance reminder to keep plugins lean
-if len(g:plugs) > 25
-  echohl WarningMsg
-  echo "Warning: " . len(g:plugs) . " plugins loaded. Consider reducing for better performance."
-  echohl None
-endif
-" }}}
-
 " vim: set foldmethod=marker foldlevel=0 ts=2 sts=2 sw=2 noet :
