@@ -2,12 +2,20 @@
 
 *This document describes my specific dotfiles configuration—the actual configs I use on my machines and manage in this repository.*
 
+## Installation Options
+
+I describe two options here:
+- [Install As-Is](#install-as-is)
+  - Follow this section to use my exact dotfiles and setup
+- [Fork and Customize](#fork-and-customize)
+  - Follow this section if you want to start with my setup and then customize to your liking
+
 ## What's Included
 
 **Supported Platforms:**
 - macOS
 - Linux (Arch, Debian, RHEL variants)
-- Both bash and zsh (zsh for personal machines, bash for work systems)
+- Both bash and zsh
 
 **Key Features:**
 - Cross-platform shell configuration with shared aliases and functions
@@ -27,7 +35,7 @@
 - **Modular vim config**: Plugin definitions separate from main `.vimrc`, individual plugin configs in dedicated files
 - **Git submodules**: Alacritty themes managed as a submodule for easy updates
 
-## Prerequisites (My Dotfiles)
+## Prerequisites
 
 **Required from the Methodology:**
 - `git` - Version control system
@@ -45,7 +53,9 @@
 - **macOS**: Homebrew (`https://brew.sh/`)
 - **Linux**: Your distro's package manager (apt, pacman, dnf, etc.)
 
-## Installation Options
+---
+
+## Install Dotfiles
 
 ### Install As-Is
 
