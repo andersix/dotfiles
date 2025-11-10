@@ -17,6 +17,9 @@ shopt -s progcomp
 #make sure the history is updated at every command
 shopt -s histappend
 
+# uncomment umask when needed
+#umask 0007
+
 #!! sets vi mode for shell
 set -o vi
 
@@ -200,4 +203,5 @@ export PATH=$HOME/bin:$PATH
 
 # pick prompt
 [ -f "$HOME/.shell_prompt_choice" ] && source "$HOME/.shell_prompt_choice"
+choose_prompt
 
