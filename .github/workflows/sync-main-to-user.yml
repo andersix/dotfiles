@@ -1,0 +1,85 @@
+name: Sync main → user
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * *"  # daily at 07:00 UTC (optional)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-main-to-user
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_BRANCH: main
+      TARGET_BRANCH: user
+      RENAME_SRC: .bashrc
+      RENAME_DST: .bashrc.user
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Configure Git
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config merge.renames true
+          # Ensure pushes use the GITHUB_TOKEN
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+
+      - name: Fetch branches
+        run: |
+          git fetch --all --prune
+          git show-ref --heads || true
+
+      - name: Bootstrap $TARGET_BRANCH if missing
+        id: bootstrap
+        shell: bash
+        run: |
+          if ! git ls-remote --exit-code --heads origin "${TARGET_BRANCH}" >/dev/null 2>&1; then
+            echo "Bootstrapping ${TARGET_BRANCH} from ${SOURCE_BRANCH} and renaming ${RENAME_SRC} -> ${RENAME_DST}"
+            git switch -c "${TARGET_BRANCH}" "origin/${SOURCE_BRANCH}"
+
+            if [ -f "${RENAME_SRC}" ]; then
+              git mv "${RENAME_SRC}" "${RENAME_DST}"
+              git commit -m "user branch: rename ${RENAME_SRC} -> ${RENAME_DST}"
+            else
+              echo "WARN: ${RENAME_SRC} not present; creating empty ${RENAME_DST} to establish mapping"
+              : > "${RENAME_DST}"
+              git add "${RENAME_DST}"
+              git commit -m "user branch: add ${RENAME_DST} (bootstrap)"
+            fi
+
+            git push -u origin "${TARGET_BRANCH}"
+            echo "created=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "created=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Merge $SOURCE_BRANCH → $TARGET_BRANCH
+        if: steps.bootstrap.outputs.created == 'false'
+        shell: bash
+        run: |
+          git switch "${TARGET_BRANCH}"
+          git fetch origin "${SOURCE_BRANCH}":"refs/remotes/origin/${SOURCE_BRANCH}" \
+                          "${TARGET_BRANCH}":"refs/remotes/origin/${TARGET_BRANCH}"
+
+          # If SOURCE is already contained in TARGET, nothing to do
+          if git merge-base --is-ancestor "origin/${SOURCE_BRANCH}" "origin/${TARGET_BRANCH}"; then
+            echo "Already up to date; nothing to do."
+            exit 0
+          fi
+
+          set -e
+          git merge --no-ff "origin/${SOURCE_BRANCH}" -m "Auto-merge ${SOURCE_BRANCH} → ${TARGET_BRANCH} [skip ci]"
+          git push origin HEAD:"${TARGET_BRANCH}"
