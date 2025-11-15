@@ -14,16 +14,16 @@ I describe two options here:
 
 **Supported Platforms:**
 - macOS
-- Linux (Arch, Debian, RHEL variants)
+- Linux (Arch, Debian, RHEL, etc.)
 - Both bash and zsh
 
 **Key Features:**
 - Cross-platform shell configuration with shared aliases and functions
-- Starship prompt (with Liquidprompt/Spaceship fallbacks)
+- Shell-prompt selector (defaults to Starship prompt, with Liquidprompt/Spaceship fallbacks)
 - Vim with vim-plug and modular plugin architecture
-- Tmux with TPM and custom prefix (Ctrl-a instead of Ctrl-b)
+- Tmux with Tmux Plugin Manager (TPM) and custom prefix (Ctrl-a instead of Ctrl-b)
 - XDG Base Directory Specification compliance
-- Integration with modern CLI tools (bat, eza, fzf, ripgrep)
+- Optional integration with modern CLI tools (bat, eza, fzf, ripgrep)
 - Automatic OS detection for platform-specific behavior
 - Graceful degradation when optional tools aren't installed
 
@@ -162,7 +162,21 @@ dotfiles push
 
 ### Shell Dependencies
 
-#### For Bash Users
+#### Starship prompt (Recommended)
+
+**Starship** is my default prompt—a modern, fast prompt that works with both bash and zsh:
+```sh
+# macOS:
+brew install starship
+
+# Linux (universal installer):
+curl -sS https://starship.rs/install.sh | sh
+
+# Or using package manager:
+# Arch: sudo pacman -S starship
+# Debian/Ubuntu: Check https://starship.rs for latest instructions
+```
+The dotfiles will auto-detect and use Starship if available, otherwise fall back to Liquidprompt/Spaceship.
 
 **Liquidprompt** (shell prompt):
 ```sh
@@ -200,22 +214,6 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git
 git clone https://github.com/zsh-users/zsh-autosuggestions.git
 ```
 
-#### Starship (Recommended)
-
-**Starship** is my default prompt—a modern, fast prompt that works with both bash and zsh:
-```sh
-# macOS:
-brew install starship
-
-# Linux (universal installer):
-curl -sS https://starship.rs/install.sh | sh
-
-# Or using package manager:
-# Arch: sudo pacman -S starship
-# Debian/Ubuntu: Check https://starship.rs for latest instructions
-```
-
-The dotfiles will auto-detect and use Starship if available, otherwise fall back to Liquidprompt/Spaceship.
 
 ### Vim Setup
 
