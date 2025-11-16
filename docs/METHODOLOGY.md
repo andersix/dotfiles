@@ -4,7 +4,7 @@
 
 ## What is the Bare Repository Approach?
 
-The bare repository methodology uses Git directly to track files in `$HOME` without symlinks or special tools. Files are managed using a `dotfiles` alias to git that operates on a bare repository. Managing your dotfiles becomes as simple as using Git, with commands like `dotfiles add myfile`, `dotfiles commit`, and `dotfiles push`.
+This bare repository methodology uses Git via an alias to track files you specify in `$HOME` without symlinks or special tools, storing them in a Git bare repository in a "side" folder ($HOME/.dotfiles) using a specially crafted alias so that commands are run against that repository and not the usual .git local folder, which would interfere with any other Git repositories around. Your dotfiles are managed using a `dotfiles` alias to git that operates on the bare repository. Then managing your dotfiles becomes as simple as `dotfiles add myfile`, `dotfiles commit`, and `dotfiles push`.
 
 **Benefits:**
 - No symlink management
@@ -55,7 +55,7 @@ This prevents `dotfiles status` from showing every file in `$HOME`, only showing
 - **Browser history, cookies, or session data**
 
 **Best Practices:**
-- Always review files with `cat` or `vim` before running `dotfiles add`
+- Always review files before running `dotfiles add`
 - Use a `~/.gitignore` file as a safety valve (see below)
 - Use environment variables or separate credential files (not tracked) for sensitive data
 - Consider using tools like `git-secrets` or pre-commit hooks to prevent accidental commits
