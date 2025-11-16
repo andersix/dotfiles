@@ -1,6 +1,8 @@
 # my dotfiles
 
-Welcome to my $HOME. This repository contains my personal configuration files for Linux and macOS, and a crazy powerful simple methodology to manage them, making setup on new machines, and keeping them in sync on existing ones, very easy. 
+Welcome to my $HOME. This repository contains my personal configuration files for Linux and macOS, and a crazy powerful simple methodology to manage them, making setup on new machines, and keeping them in sync on existing ones, very easy.
+
+- The only requirement is Git, and if you're here, then that's obviously covered! ;-) 
 
 ## What is This?
 
