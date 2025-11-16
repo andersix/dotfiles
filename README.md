@@ -1,14 +1,16 @@
 # my dotfiles
 
-Welcome to my $HOME. This repository contains my personal configuration files for Linux (Arch, Debian, RHEL variants) and macOS. I've migrated to ZSH on personal machines but maintain BASH for work RHEL systems.
+Welcome to my $HOME. This repository contains my personal configuration files for Linux and macOS, and a crazy powerful simple methodology to manage them, making setup on new machines, and keeping them in sync on existing ones, very easy. 
 
 ## What is This?
 
 This repository serves two purposes:
 
-1. **A Methodology**: A bare Git repository approach for managing dotfiles—no symlinks, no extra tooling, just Git. This methodology is universal and works with anyone's configuration files.
+1. **A Methodology**:
+    - A bare Git repository approach for managing dotfiles—no symlinks, no extra tooling, just Git. This methodology is universal and works with anyone's configuration files.
 
-2. **My Implementation**: My personal configuration files managed using this methodology (cross-platform bash/zsh, vim, tmux, Starship prompt, XDG compliance, and modern CLI tool integration).
+3. **My Implementation**:
+    - My personal configuration files managed using this methodology (cross-platform bash/zsh, vim, tmux, Starship prompt, XDG compliance, and modern CLI tool integration).
 
 ## Documentation
 
@@ -27,16 +29,19 @@ This repository serves two purposes:
 ## Quick Start
 
 **Want to learn the methodology with your own dotfiles?**
-→ Read [METHODOLOGY.md](docs/METHODOLOGY.md) - Setup from Scratch
-*Best for starting from zero with your existing configs*
+- → Read [METHODOLOGY.md](docs/METHODOLOGY.md)
+- Jump to Setup from Scratch
+  - *Best for starting from zero with your existing configs*
 
 **Want to use my dotfiles as-is?**
-→ Read [IMPLEMENTATION.md](docs/IMPLEMENTATION.md) - Install As-Is
-*Jump straight to installation*
+- → Read [IMPLEMENTATION.md](docs/IMPLEMENTATION.md)
+- - Jump to Install As-Is
+  - *This is where I go anytime I setup a new machine*
 
 **Want to fork and customize my dotfiles?**
-→ Read [IMPLEMENTATION.md](docs/IMPLEMENTATION.md) - Fork and Customize
-*Start with my setup, make it yours*
+- → Read [IMPLEMENTATION.md](docs/IMPLEMENTATION.md)
+- - Jump to Fork and Customize
+  - *Start with my setup, make it yours*
 
 ---
 
@@ -50,7 +55,7 @@ This repository serves two purposes:
 - Browser data
 
 **Best Practices:**
-1. Always review files with `cat` or `vim` before `dotfiles add`
+1. Always review files before `dotfiles add`
 2. Use `~/.gitignore` to block sensitive files (see example in this repo)
 3. Use environment variables for secrets, not tracked files
 4. Consider using `git-secrets` or pre-commit hooks
