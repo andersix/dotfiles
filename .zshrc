@@ -25,12 +25,29 @@
 #    .zlogout---is sometimes used to clear and reset the terminal.
 #       It is called when exiting, not when opening.
 #
+# uncomment if needing to debug...re-comment to disable:
+#exec > >(tee -a ~/.zshrc_debug.log) 2>&1
+#set -x  # Start debugging
 
 # return if non-interactive
 [[ -o interactive ]] || return
 
 HOSTNAME=$(hostname)
 export HOSTNAME
+
+# Shared configuration files {{{
+# All shared aliases and environment settings in ~/.shell_aliases
+[[ -r "$HOME/.shell_aliases" ]] && source "$HOME/.shell_aliases"
+
+# All shared functions in ~/.shell_functions
+[[ -r "$HOME/.shell_functions" ]] && source "$HOME/.shell_functions"
+
+# Optional: XDG layout additional configs
+for f in "$XDG_CONFIG_HOME/shell"/{aliases,functions,completion}.sh; do
+  [[ -r "$f" ]] && source "$f"
+done
+# }}}
+
 
 # Homebrew setup is done in .zprofile (login shells)
 # Completion setup for Homebrew zsh functions
@@ -144,19 +161,6 @@ if [ "$IS_MACOS" -eq 1 ]; then
   export TERM=xterm-256color
   export COLORTERM=truecolor
 fi
-# }}}
-
-# Shared configuration files {{{
-# All shared aliases and environment settings in ~/.shell_aliases
-[[ -r "$HOME/.shell_aliases" ]] && source "$HOME/.shell_aliases"
-
-# All shared functions in ~/.shell_functions
-[[ -r "$HOME/.shell_functions" ]] && source "$HOME/.shell_functions"
-
-# Optional: XDG layout additional configs
-for f in "$XDG_CONFIG_HOME/shell"/{aliases,functions,completion}.sh; do
-  [[ -r "$f" ]] && source "$f"
-done
 # }}}
 
 # ZSH-specific integrations and tools {{{
