@@ -169,7 +169,9 @@ augroup file_types
     autocmd FileType make setlocal noexpandtab
 
     " Python PEP8 style
-    autocmd BufNewFile,BufRead *.py set tabstop=4 softtabstop=4 shiftwidth=4 textwidth=79 expandtab autoindent fileformat=unix
+    autocmd BufNewFile,BufRead *.py set tabstop=4 softtabstop=4 shiftwidth=4 textwidth=0 expandtab autoindent fileformat=unix
+		" jinja2 templates
+    autocmd BufNewFile,BufRead *.j2 set ft=jinja
 
     " C/C++ style
     autocmd FileType c,cpp set tabstop=2 softtabstop=2 shiftwidth=2 expandtab

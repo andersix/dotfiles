@@ -51,6 +51,15 @@ behind = '⇣($count)'
 diverged = '⇕($count)'
 up_to_date = "✅"
 
+[python]
+disabled = false
+format = '[🐍 $virtualenv]($style) '
+# Don't detect plain python projects, only active envs
+detect_extensions = []
+detect_files = []
+detect_folders = []
+
+
 # Palette definition
 [palettes.catppuccin_mocha]
 rosewater = "#f5e0dc"
