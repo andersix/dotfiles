@@ -4,12 +4,17 @@
 
 ## Installation Options
 
-I describe two options here:
+I describe two options for using my dotfiles here:
 - [Install As-Is](#install-as-is)
   - Follow this section to use my exact dotfiles and setup
 - [Fork and Customize](#fork-and-customize)
   - Follow this section if you want to start with my setup and then customize to your liking
 
+Once you have your dotfiles in place:
+- Follow the [Post-Installation Setup](#post-installation-setup) section
+- Curious about my dotfiles structure, read the [Architecture Details](#architecture-details) section
+  - [Platform-Specific Notes](#platform-specific-notes)
+ 
 ## What's Included
 
 **Supported Platforms:**
@@ -334,7 +339,7 @@ The `.shell_prompt_choice` file provides automatic prompt detection:
 
 ## Platform-Specific Notes
 
-*These describe my implementation choices, not universal requirements.*
+*These describe my implementation choices on each platform, not universal requirements.*
 
 ### macOS
 
