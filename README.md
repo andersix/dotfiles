@@ -6,15 +6,17 @@ Welcome to my $HOME. This repository contains my personal configuration files fo
 
 ## What is This?
 
-This repository serves two purposes:
+This repository contains my approach and use of dotfiles, and is organized into two topics:
 
 1. **A Methodology**:
     - A bare Git repository approach for managing dotfiles—no symlinks, no extra tooling, just Git. This methodology is universal and works with anyone's configuration files.
 
-3. **My Implementation**:
+2. **My Implementation**:
     - My personal configuration files managed using this methodology (cross-platform bash/zsh, vim, tmux, Starship prompt, XDG compliance, and modern CLI tool integration).
 
 ## Documentation
+
+I have these two approaches documented in the docs directory. They can be ready independently, but when read together gives the full picture of my approach. So, if you want the full picture, read METHODOLOGY first. Here's what each doc contains:
 
 📖 **[METHODOLOGY.md](docs/METHODOLOGY.md)** - Learn the bare repository approach for managing dotfiles
 - How the methodology works
