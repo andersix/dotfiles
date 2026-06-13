@@ -13,7 +13,7 @@ right_format = """$git_branch $git_status"""
 [hostname]
 ssh_only = false
 format = "\\[[$hostname](${style})\\]"
-style = "bold green"
+style = "bold cyan"
 ssh_symbol = "🔗 "
 trim_at = ""
 
@@ -27,9 +27,9 @@ truncate_to_repo = true
 # Example: '/path/to/project' = 'project'
 
 [character]
-success_symbol = '[⟩](bold green)'
+success_symbol = '[⟩](bold cyan)'
 error_symbol = '[](bold red)'
-vimcmd_symbol = '[⟨](bold green)'
+vimcmd_symbol = '[⟨](bold cyan)'
 vimcmd_replace_one_symbol = '[⟨](bold purple)'
 vimcmd_replace_symbol = '[⟨](bold purple)'
 vimcmd_visual_symbol = '[⟨](bold yellow)'

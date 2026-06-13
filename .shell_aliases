@@ -89,7 +89,7 @@ alias lc='ls -lcr'              # sort by change time
 alias lu='ls -lur'              # sort by access time
 alias lr='ls -lR'               # recursive ls
 alias lt='ls -ltr'              # sort by date, oldest first
-alias tree='tree -Csu'          # nice alternative to 'ls'
+alias ltree='tree -Csu'
 
 # Platform-specific ls aliases (base ls behavior)
 if [ "$IS_MACOS" -eq 1 ]; then

@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+#
+# used to toggle alacritty theme between dark/light modes
+# from inside Alacritty toggle with Ctrl+Shift+T.
+#
+set -eu
+
+tdir="${XDG_CONFIG_HOME:-$HOME/.config}/alacritty/themes"
+active="$tdir/active_theme.toml"
+
+case "${1:-toggle}" in
+  light)
+    cp "$tdir/one_light_custom.toml" "$active"
+    ;;
+  dark)
+    cp "$tdir/one_dark_custom.toml" "$active"
+    ;;
+  toggle)
+    if grep -q '#282c34' "$active"; then
+      cp "$tdir/one_light_custom.toml" "$active"
+    else
+      cp "$tdir/one_dark_custom.toml" "$active"
+    fi
+    ;;
+  *)
+    echo "usage: alacritty-theme [light|dark|toggle]" >&2
+    exit 2
+    ;;
+esac
+
