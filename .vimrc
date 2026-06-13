@@ -56,6 +56,9 @@ set foldlevel=2               " When folding is enabled, fold at depth 2+
 " Enable folding with the spacebar
 nnoremap <space> za
 
+" Leader key
+let mapleader = ","
+
 " Netrw (built-in file explorer) configuration
 let g:netrw_banner = 0        " Hide banner
 let g:netrw_liststyle = 3     " Tree view
@@ -80,29 +83,113 @@ nnoremap <CR> :nohlsearch<CR>/<BS><CR>
 " Syntax and Colors {{{
 " ============================================================================
 syntax on                     " Enable syntax highlighting
-set background=dark           " Use dark background
 
-" Configure true color support for terminal
-if (empty($TMUX))
-  if has('nvim') || has('termguicolors')
-    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-    set termguicolors
-    let g:onedark_terminal_italics = 0
-    colorscheme onedark
-    "colorscheme catppuccin_mocha
-  else
-    colorscheme jellybeans
-  endif
+" Configure true color support for terminal Vim.
+" tmux is expected to advertise true color with terminal-overrides ",*:Tc".
+if has('nvim') || has('termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
 endif
+
+" Theme state is written by ~/.local/bin/alacritty-theme.
+" This lets Vim follow the same light/dark mode as Alacritty.
+let g:onedark_terminal_italics = 0
+let g:theme_mode_file = expand('~/.config/theme-mode')
+
+" Read the shared theme mode. Default to dark if the state file is missing.
+function! s:ThemeMode() abort
+  if filereadable(g:theme_mode_file)
+    let l:mode = trim(readfile(g:theme_mode_file)[0])
+    if l:mode ==# 'light' || l:mode ==# 'dark'
+      return l:mode
+    endif
+  endif
+
+  return 'dark'
+endfunction
+
+" Apply Vim colors, selection colors, and lightline colors for current mode.
+function! ApplyThemeMode() abort
+  let l:mode = s:ThemeMode()
+
+  if l:mode ==# 'light'
+    set background=light
+    silent! colorscheme solarized
+
+    " Visual/block selection for light mode
+    highlight Visual guifg=NONE guibg=#d7e4ff ctermfg=NONE ctermbg=153
+    highlight VisualNOS guifg=NONE guibg=#d7e4ff ctermfg=NONE ctermbg=153
+
+    " Built-in statusline fallback if lightline is unavailable
+    highlight StatusLine guifg=#383a42 guibg=#d7d7d7 ctermfg=black ctermbg=white
+    highlight StatusLineNC guifg=#696c77 guibg=#eeeeee ctermfg=darkgray ctermbg=white
+
+    " lightline statusline
+    let g:lightline = get(g:, 'lightline', {})
+    let g:lightline.colorscheme = 'solarized'
+  else
+    set background=dark
+    silent! colorscheme onedark
+
+    " Visual/block selection for dark mode
+    highlight Visual guifg=NONE guibg=#3e4451 ctermfg=NONE ctermbg=60
+    highlight VisualNOS guifg=NONE guibg=#3e4451 ctermfg=NONE ctermbg=60
+
+    " Built-in statusline fallback if lightline is unavailable
+    highlight StatusLine guifg=#abb2bf guibg=#3e4451 ctermfg=white ctermbg=darkgray
+    highlight StatusLineNC guifg=#5c6370 guibg=#282c34 ctermfg=gray ctermbg=black
+
+    " lightline statusline
+    let g:lightline = get(g:, 'lightline', {})
+    let g:lightline.colorscheme = 'onedark'
+  endif
+
+  " Refresh lightline after changing its colorscheme.
+  if exists('*lightline#init')
+    try
+      call lightline#init()
+      call lightline#colorscheme()
+      call lightline#update()
+    catch
+      " Keep Vim usable if a lightline colorscheme is unavailable.
+    endtry
+  endif
+
+  " Theme overrides that should survive colorscheme reloads
+  highlight Comment cterm=italic gui=italic
+  highlight RedundantSpaces ctermbg=red guibg=red
+endfunction
+
+" Toggle Alacritty and Vim together from inside Vim.
+function! ToggleThemeMode() abort
+  silent call system(expand('~/.local/bin/alacritty-theme toggle'))
+  call ApplyThemeMode()
+  redraw!
+  echo 'Theme mode: ' . s:ThemeMode()
+endfunction
+
+command! ThemeApply call ApplyThemeMode()
+command! ThemeToggle call ToggleThemeMode()
+
+" Toggle light/dark mode with F12
+nnoremap <silent> <F12> :ThemeToggle<CR>
+
+" Re-apply theme on startup and when returning focus to Vim.
+augroup theme_mode
+  autocmd!
+  autocmd VimEnter * call ApplyThemeMode()
+  autocmd FocusGained * call ApplyThemeMode()
+augroup END
 
 " Enable italics
 let &t_ZH="\e[3m"
 let &t_ZR="\e[23m"
-highlight Comment cterm=italic gui=italic
+
+" Apply once before defining matches, so the RedundantSpaces group exists.
+call ApplyThemeMode()
 
 " Highlight redundant whitespaces and tabs
-highlight RedundantSpaces ctermbg=red guibg=red
 match RedundantSpaces /\s\+$\| \+\ze\t\|\t/
 " }}}
 
@@ -170,7 +257,8 @@ augroup file_types
 
     " Python PEP8 style
     autocmd BufNewFile,BufRead *.py set tabstop=4 softtabstop=4 shiftwidth=4 textwidth=0 expandtab autoindent fileformat=unix
-		" jinja2 templates
+
+    " jinja2 templates
     autocmd BufNewFile,BufRead *.j2 set ft=jinja
 
     " C/C++ style
@@ -323,6 +411,9 @@ endtry
 for f in split(glob('~/.vim/plugin_configs/*.vim'), '\n')
   exe 'source' f
 endfor
+
+" Re-apply after plugin configs so lightline/statusline settings win last.
+call ApplyThemeMode()
 " }}}
 
 " ============================================================================

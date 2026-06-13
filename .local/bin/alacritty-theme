@@ -1,29 +1,56 @@
 #!/usr/bin/env sh
 #
-# used to toggle alacritty theme between dark/light modes
-# from inside Alacritty toggle with Ctrl+Shift+T.
-#
+# Toggle Alacritty between dark/light themes.
+# Also writes a shared theme mode file for Vim, tmux, and other terminal tools.
+
 set -eu
 
-tdir="${XDG_CONFIG_HOME:-$HOME/.config}/alacritty/themes"
-active="$tdir/active_theme.toml"
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+theme_dir="$config_home/alacritty/themes"
+active_theme="$theme_dir/active_theme.toml"
+mode_file="$config_home/theme-mode"
+
+dark_theme="$theme_dir/one_dark_custom.toml"
+light_theme="$theme_dir/one_light_custom.toml"
+
+set_dark() {
+  cp "$dark_theme" "$active_theme"
+  printf "dark\n" > "$mode_file"
+}
+
+set_light() {
+  cp "$light_theme" "$active_theme"
+  printf "light\n" > "$mode_file"
+}
+
+current_mode() {
+  if [ -f "$mode_file" ]; then
+    sed -n '1p' "$mode_file"
+  elif [ -f "$active_theme" ] && grep -q '#282c34' "$active_theme"; then
+    printf "dark\n"
+  else
+    printf "light\n"
+  fi
+}
 
 case "${1:-toggle}" in
-  light)
-    cp "$tdir/one_light_custom.toml" "$active"
-    ;;
   dark)
-    cp "$tdir/one_dark_custom.toml" "$active"
+    set_dark
+    ;;
+  light)
+    set_light
     ;;
   toggle)
-    if grep -q '#282c34' "$active"; then
-      cp "$tdir/one_light_custom.toml" "$active"
-    else
-      cp "$tdir/one_dark_custom.toml" "$active"
-    fi
+    case "$(current_mode)" in
+      dark) set_light ;;
+      *)    set_dark ;;
+    esac
+    ;;
+  status)
+    current_mode
     ;;
   *)
-    echo "usage: alacritty-theme [light|dark|toggle]" >&2
+    echo "usage: alacritty-theme [dark|light|toggle|status]" >&2
     exit 2
     ;;
 esac
